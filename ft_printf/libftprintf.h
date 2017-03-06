@@ -24,19 +24,28 @@
 # include <stdio.h>
 # include <stdarg.h>
 
+char				g_spec;
+int					g_width;
+int					g_pres;
+
 typedef struct		s_flist
 {
 	char			*str;//рядок з флагами, необроблений
 	int				m;//-
 	int				p;//+
 	int				s;//space
-	int				h;//#
-	int				z;//0
+	int				hs;//#
+	int				zo;//0
 	int				w;//width
+	int				d;// .
 	int				prs;//precision
-//	struct t_flist	*n;
-	int				*tmp;//масив 1 0 (флаги mpshz)
 	char			*res;//рядок з обробленими флагами
+	int				h;
+	int				hh;
+	int				j;
+	int				l;
+	int				ll;
+	int				z;
 }					t_flist;
 
 int					main(void);
