@@ -182,7 +182,7 @@ void	ft_bzero(void *s, size_t n)
 // }
 
 /*
-	char			g_spec;
+	char			g_sr;
 
 	char			*str;//рядок з флагами, необроблений
 	int				m;//-
@@ -200,11 +200,79 @@ void	ft_bzero(void *s, size_t n)
 	int				ll;
 	int				z;
 */
+
+// void	ft_spec_len(t_flist *list)
+// {
+// 	if (list->j || list->z || list->ll || list->l || list->h || list->hh)
+// 	{
+// 		if (list->j)
+
+
+// 	}
+// }
+
+void	ft_flags(t_flist *list, intmax_t *num)
+{
+	if (list->m)
+	{
+		printf("%d", num);
+		while (g_width > 0)
+		{
+			printf(" ");
+			g_width--;
+		}
+	}
+}
+
+uintmax_t	ft_unsigned_size(t_flist *list, va_list *ap)
+{
+	uintmax_t	number;
+
+	number = va_arg(*ap, intmax_t);
+	if (list->j)
+		number = (uintmax_t)number;
+	else if (list->z)
+		number = (size_t)number;
+	else if (list->ll)
+		number = (unsigned long long int)number;
+	else if (list->l)
+		number = (unsigned long int)number;
+	else if (list->h)
+		number = (unsigned short int)number;
+	else if (list->hh)
+		number = (unsigned char)number;
+	else
+		number = (unsigned int)number;
+	return (number);
+}
+
+intmax_t	ft_signed_size(t_flist *list, va_list *ap)
+{
+	intmax_t	number;
+
+	number = va_arg(*ap, intmax_t);
+	if (list->j)
+		number = (intmax_t)number;
+	else if (list->z)
+		number = (size_t)number;
+	else if (list->ll)
+		number = (long long int)number;
+	else if (list->l)
+		number = (long int)number;
+	else if (list->h)
+		number = (signed short int)number;
+	else if (list->hh)
+		number = (signed char)number;
+	else
+		number = (int)number;
+	return (number);
+}
+
 void	ft_delete_g_varib(t_flist *list)
 {
 	list->prs = 0;
 	g_width = 0;
-	g_spec = 0;
+	g_sr = 0;
 	g_pres = 0;
 }
 
@@ -284,8 +352,10 @@ void	ft_init_flags(t_flist *list, char *tmp, int i)
 	if (list->h == 1 || list->l == 1)
 		ft_list_lh(list);
 	ft_wid_len(list);
-	printf("\nwidth = %d\n", g_width);
-	printf("pres = %d\n", g_pres);
+	
+
+	// printf("\n\nwidth = %d\n", g_width);
+	// printf("pres = %d\n", g_pres);
 	// printf("\n\nm = %d\n", list->m);
 	// printf("p = %d\n", list->p);
 	// printf("s = %d\n", list->s);
@@ -340,7 +410,7 @@ char	*ft_strnchar(char *start, char *spec)
 				k++;
 			if (start[i] == spec[k])
 			{
-				g_spec = spec[k];
+				g_sr = spec[k];
 				break ;
 			}
 			i++;
@@ -354,12 +424,10 @@ char	*ft_strnchar(char *start, char *spec)
 
 void	ft_just_do_it(char **start, va_list *ap)
 {
-	t_flist	*list;
-	char	*tmp;
-	int		i;
-	va_list *aa;
-
-	aa = ap;
+	t_flist		*list;
+	char		*tmp;
+	int			i;
+	intmax_t	num;
 
 	tmp = *start;
 	*start = ft_strnchar(*start, "%sSpdDioOuUxXcC");
@@ -368,6 +436,14 @@ void	ft_just_do_it(char **start, va_list *ap)
 		return ;
 	ft_list_zero(list, i);
 	ft_init_flags(list, tmp + 1, i);
+	if (g_sr == 'd' || g_sr == 'i')
+	{
+		num = ft_signed_size(list, ap);
+		ft_flags(list, &num);
+	}
+	if (g_sr == 'u' || g_sr == 'U' || g_sr == 'o' || g_sr == 'O'
+		|| g_sr == 'x' || g_sr == 'X')
+		ft_unsigned_size(list, ap);
 	ft_delete_g_varib(list);
 }
 
@@ -493,7 +569,12 @@ int main(void)
 //			123, 456, -789, 951, 753, 654, 852, 258, 321);
 	//printf("123:%-+0#  l 110d| 456:%-10d|\n", 123, -456);
 //	printf("%012.3b%%\n");
-	ft_printf("asma%- 0 # hh z 103.8lll .45 s   k%#+-0   llkzjlhhh       p", 10);
+
+	// ft_printf("asma%0d aAaA% -0 102.6. 7.  a 10.8d\n", 10, 123);
+	// printf("__________\n");
+	// printf("asma%0d aAaA % 012d", 10, 123);
+	ft_printf("AWERT\n%-1.2d\n", 10000000000);
+
 //	printf("%c%c%c%c%c%c%c", 209, 133, 209, 131, 208, 185, 10);
 
 	return (0);

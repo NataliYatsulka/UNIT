@@ -24,9 +24,10 @@
 # include <stdio.h>
 # include <stdarg.h>
 
-char				g_spec;
+char				g_sr;// dDsSpioOxX
 int					g_width;
 int					g_pres;
+int					g_mlen;// max modifire of length
 
 typedef struct		s_flist
 {
