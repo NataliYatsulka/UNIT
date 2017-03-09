@@ -20,6 +20,34 @@
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
+void	ft_putstr(char const *s)
+{
+	int i;
+
+	i = 0;
+	if (s == '\0')
+		return ;
+	while (s[i])
+	{
+		ft_putchar(s[i]);
+		i++;
+	}
+}
+
+char	*ft_strnew(size_t size)
+{
+	char	*p;
+	size_t	i;
+
+	i = -1;
+	if ((p = (char *)malloc((size + 1) * (sizeof(char)))) == NULL)
+		return (NULL);
+	while (++i < size)
+		p[i] = 0;
+	p[i] = '\0';
+	return (p);
+}
+
 char	*ft_strncpy(char *dst, const char *src, size_t len)
 {
 	size_t		i;
@@ -211,18 +239,18 @@ void	ft_bzero(void *s, size_t n)
 // 	}
 // }
 
-void	ft_flags(t_flist *list, intmax_t *num)
-{
-	if (list->m)
-	{
-		printf("%d", num);
-		while (g_width > 0)
-		{
-			printf(" ");
-			g_width--;
-		}
-	}
-}
+// void	ft_flags(t_flist *list, intmax_t *num)
+// {
+// 	if (list->m)
+// 	{
+// 		printf("%d", num);
+// 		while (g_width > 0)
+// 		{
+// 			printf(" ");
+// 			g_width--;
+// 		}
+// 	}
+// }
 
 uintmax_t	ft_unsigned_size(t_flist *list, va_list *ap)
 {
@@ -266,6 +294,21 @@ intmax_t	ft_signed_size(t_flist *list, va_list *ap)
 	else
 		number = (int)number;
 	return (number);
+}
+
+void	ft_spec_d_i(t_flist *list, va_list *ap)
+{
+	intmax_t	num;
+
+	num = ft_signed_size(list, ap);
+	if (num < 0 || list->m || list->s)
+		g_width--;
+	if (num == 0 && g_pres)
+		list->res = ft_strnew(1);
+	else
+		list->res = ft_itoa_base(num, 10);
+	ft_putstr(list->res);
+	free(list->res);
 }
 
 void	ft_delete_g_varib(t_flist *list)
@@ -427,7 +470,7 @@ void	ft_just_do_it(char **start, va_list *ap)
 	t_flist		*list;
 	char		*tmp;
 	int			i;
-	intmax_t	num;
+//	intmax_t	num;
 
 	tmp = *start;
 	*start = ft_strnchar(*start, "%sSpdDioOuUxXcC");
@@ -438,8 +481,9 @@ void	ft_just_do_it(char **start, va_list *ap)
 	ft_init_flags(list, tmp + 1, i);
 	if (g_sr == 'd' || g_sr == 'i')
 	{
-		num = ft_signed_size(list, ap);
-		ft_flags(list, &num);
+		ft_spec_d_i(list, ap);
+		// num = ft_signed_size(list, ap);
+		
 	}
 	if (g_sr == 'u' || g_sr == 'U' || g_sr == 'o' || g_sr == 'O'
 		|| g_sr == 'x' || g_sr == 'X')
@@ -460,7 +504,7 @@ int		ft_realise(const char *format, va_list *ap, int i)
 		{
 			ft_putnstr(start, end - start);
 			ft_just_do_it(&end, ap);
-			start = end;
+			start = end + 1;
 		}
 		else
 			if (*end != '\0')
@@ -573,8 +617,8 @@ int main(void)
 	// ft_printf("asma%0d aAaA% -0 102.6. 7.  a 10.8d\n", 10, 123);
 	// printf("__________\n");
 	// printf("asma%0d aAaA % 012d", 10, 123);
-	ft_printf("AWERT\n%-1.2d\n", 10000000000);
-
+	//ft_printf("AWERT\n%-1.2d\n%i\n", 100, 789123456);
+	printf("%00+5zd\n", -10);
 //	printf("%c%c%c%c%c%c%c", 209, 133, 209, 131, 208, 185, 10);
 
 	return (0);
