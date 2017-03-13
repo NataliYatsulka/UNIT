@@ -27,7 +27,7 @@
 char				g_sr;// dDsSpioOxX
 int					g_width;
 int					g_pres;
-int					g_mlen;// max modifire of length
+int					g_res;//res = кількість виведених символів
 
 typedef struct		s_flist
 {
@@ -51,6 +51,6 @@ typedef struct		s_flist
 
 int					main(void);
 int					ft_printf(const char *format, ...);
-int					ft_realise(const char *format, va_list *ap, int i);
+void					ft_realise(const char *format, va_list *ap);
 
 #endif

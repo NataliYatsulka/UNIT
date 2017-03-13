@@ -136,6 +136,7 @@ void	ft_putnstr(char const *s, int len)
 	{
 		ft_putchar(s[i]);
 		len--;
+		g_res++;
 	}
 }
 
@@ -296,19 +297,68 @@ intmax_t	ft_signed_size(t_flist *list, va_list *ap)
 	return (number);
 }
 
+void	ft_put_len_space(int len, char s)
+{
+	while (len >= 0)
+	{
+		write (1, &s, 1);
+		len--;
+		g_res++;
+	}
+}
+
 void	ft_spec_d_i(t_flist *list, va_list *ap)
 {
-	intmax_t	num;
+	intmax_t	number;
+	int 		len_arg;
 
-	num = ft_signed_size(list, ap);
-	if (num < 0 || list->m || list->s)
-		g_width--;
-	if (num == 0 && g_pres)
-		list->res = ft_strnew(1);
+	if (list->j || list->z || list->l)
+		number = va_arg(*ap, long);
+	else if (list->ll)
+		number = va_arg(*ap, long long);
+	else if (list->h)
+		number = (short)va_arg(*ap, int);
+	else if (list->hh)
+		number = (char)va_arg(*ap, int);
 	else
-		list->res = ft_itoa_base(num, 10);
-	ft_putstr(list->res);
-	free(list->res);
+		number = (int)va_arg(*ap, int);
+	list->res = ft_itoa_base(number, 10);
+	len_arg = (int)ft_strlen(list->res);
+	if (number < 0 || ((list->p || list->s) && number > 0)) 
+		g_width--;
+	if (g_width)
+	{
+		if (!list->m || !list->z || (list->z && g_pres >= 0))
+		{
+			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+			ft_put_len_space(g_width, ' ');
+		}
+		if (list->s || list->p)
+		{
+			write(1, "*", 1);
+		}
+	}
+
+	// if (number < 0 || list->m || list->s)
+	// 	g_width--;
+	// if (number < 0)
+	// 	write(1, "-",1);
+	// else if (number >= 0)
+	// {
+	// 	i = (int)ft_strlen(ft_itoa_base(number, 10));
+	// 	if (i < g_width)
+	// 		while ((g_width - i) > 0)
+	// 		{
+	// 			write(1, "/", 1);
+	// 			g_width--;
+	// 		}
+	// }
+	// if (number == 0 && g_pres)
+	// 	list->res = ft_strnew(1);
+	// else
+	// 	list->res = ft_itoa_base(number, 10);
+	// ft_putstr(list->res);
+	// free(list->res);
 }
 
 void	ft_delete_g_varib(t_flist *list)
@@ -316,17 +366,18 @@ void	ft_delete_g_varib(t_flist *list)
 	list->prs = 0;
 	g_width = 0;
 	g_sr = 0;
-	g_pres = 0;
+	g_pres = -1;
 }
 
-int		ft_atoi_wl(char *str, int *i)
+int		ft_atoi_wl(t_flist *list, int *i)
 {
 	int		res;
 
 	res = 0;
-	while (str[*i] >= '0' && str[*i] <= '9')
+	while (list->str[*i] >= '0' && list->str[*i] <= '9')
 	{
-		res = res * 10 + (str[*i] - '0');
+		res = res * 10 + (list->str[*i] - '0');
+		list->str[*i] = '?';
 		(*i)++;
 	}
 	return (res);
@@ -340,11 +391,11 @@ void	ft_wid_len(t_flist *list)
 	while (list->str[i])
 	{
 		if (list->str[i] > 48 && list->str[i] < 58)
-			g_width = ft_atoi_wl(list->str, &i);
+			g_width = ft_atoi_wl(list, &i);
 		if (list->d == 1 && list->str[i] == '.')
 		{
 			i++;
-			g_pres = ft_atoi_wl(list->str, &i);
+			g_pres = ft_atoi_wl(list, &i);
 		}
 		i++;
 	}
@@ -363,13 +414,13 @@ void	ft_list_lh(t_flist *list)
 	{
 		if (list->str[i] == 'h')
 			count_h++;
-		if (list->str[i] == 'l')
+		else if (list->str[i] == 'l')
 			count_l++;
 		i++;
 	}
-	((count_h % 2 == 0) ? list->hh = 1 : 0);
+	((count_h && count_h % 2 == 0) ? list->hh = 1 : 0);
 	((list->hh == 1) ? list->h = 0 : 1);
-	((count_l % 2 == 0) ? list->ll = 1 : 0);
+	((count_l && count_l % 2 == 0) ? list->ll = 1 : 0);
 	((list->ll == 1) ? list->l = 0 : 1);
 }
 
@@ -379,6 +430,12 @@ void	ft_init_flags(t_flist *list, char *tmp, int i)
 
 	k = -1;
 	ft_strncpy(list->str, tmp, (size_t)i - 1);
+	while (*tmp)
+	{
+		(*tmp == '.' ? list->d = 1 : 0);
+		tmp++;
+	}
+	ft_wid_len(list);
 	while (list->str[++k])
 	{
 		(list->str[k] == '-' ? list->m = 1 : 0);
@@ -386,7 +443,6 @@ void	ft_init_flags(t_flist *list, char *tmp, int i)
 		(list->str[k] == ' ' ? list->s = 1 : 0);
 		(list->str[k] == '#' ? list->hs = 1 : 0);
 		(list->str[k] == '0' ? list->zo = 1 : 0);
-		(list->str[k] == '.' ? list->d = 1 : 0);
 		(list->str[k] == 'h' ? list->h = 1 : 0);
 		(list->str[k] == 'l' ? list->l = 1 : 0);
 		(list->str[k] == 'j' ? list->j = 1 : 0);
@@ -394,23 +450,23 @@ void	ft_init_flags(t_flist *list, char *tmp, int i)
 	}
 	if (list->h == 1 || list->l == 1)
 		ft_list_lh(list);
-	ft_wid_len(list);
+	
 	
 
-	// printf("\n\nwidth = %d\n", g_width);
-	// printf("pres = %d\n", g_pres);
-	// printf("\n\nm = %d\n", list->m);
-	// printf("p = %d\n", list->p);
-	// printf("s = %d\n", list->s);
-	// printf("hs = %d\n", list->hs);
-	// printf("zo =%d\n", list->zo);
-	// printf("d = %d\n", list->d);
-	// printf("h = %d\n", list->h);
-	// printf("hh = %d\n", list->hh);
-	// printf("l = %d\n", list->l);
-	// printf("ll = %d\n", list->ll);		
-	// printf("j = %d\n", list->j);
-	// printf("z = %d\n\n", list->z);
+	printf("\n\nwidth = %d\n", g_width);
+	printf("pres = %d\n", g_pres);
+	printf("\n\nm = %d\n", list->m);
+	printf("p = %d\n", list->p);
+	printf("s = %d\n", list->s);
+	printf("hs = %d\n", list->hs);
+	printf("zo = %d\n", list->zo);
+	printf("d = %d\n", list->d);
+	printf("h = %d\n", list->h);
+	printf("hh = %d\n", list->hh);
+	printf("l = %d\n", list->l);
+	printf("ll = %d\n", list->ll);		
+	printf("j = %d\n", list->j);
+	printf("z = %d\n\n", list->z);
 }
 
 void	ft_list_zero(t_flist *list, int i)
@@ -434,6 +490,7 @@ void	ft_list_zero(t_flist *list, int i)
 	list->ll = 0;
 	list->j = 0;
 	list->z = 0;
+	g_pres = -1;
 }
 
 char	*ft_strnchar(char *start, char *spec)
@@ -470,7 +527,6 @@ void	ft_just_do_it(char **start, va_list *ap)
 	t_flist		*list;
 	char		*tmp;
 	int			i;
-//	intmax_t	num;
 
 	tmp = *start;
 	*start = ft_strnchar(*start, "%sSpdDioOuUxXcC");
@@ -480,18 +536,19 @@ void	ft_just_do_it(char **start, va_list *ap)
 	ft_list_zero(list, i);
 	ft_init_flags(list, tmp + 1, i);
 	if (g_sr == 'd' || g_sr == 'i')
-	{
 		ft_spec_d_i(list, ap);
-		// num = ft_signed_size(list, ap);
-		
-	}
-	if (g_sr == 'u' || g_sr == 'U' || g_sr == 'o' || g_sr == 'O'
-		|| g_sr == 'x' || g_sr == 'X')
-		ft_unsigned_size(list, ap);
+	// if (g_sr == 'u' || g_sr == 'U' || g_sr == 'o' || g_sr == 'O'
+	// 	|| g_sr == 'x' || g_sr == 'X')
+	// 	ft_unsigned_size(list, ap);
+	// if (g_sr == '%' || || g_sr == '%')
+	// 	ft_p_proc(list);
+	// if (g_sr == 'D' || g_sr == 's' || g_sr == 'S' || g_sr == 'S' ||
+	// 	g_sr == 'c' || g_sr == 'C')
+	// 	ft_char_sp(list, ap);
 	ft_delete_g_varib(list);
 }
 
-int		ft_realise(const char *format, va_list *ap, int i)
+void		ft_realise(const char *format, va_list *ap)
 {
 	char	*start;
 	char	*end;
@@ -508,23 +565,21 @@ int		ft_realise(const char *format, va_list *ap, int i)
 		}
 		else
 			if (*end != '\0')
-				i++;
+				g_res++;
 		end++;
 	}
 	ft_putnstr(start, end - start);
-	return (i);
 }
 
 int		ft_printf(const char *format, ...)
 {
-	int		i;
 	va_list	ap;
 
-	i = 0;
+	g_res = 0;
 	va_start(ap, format);
-	i = ft_realise(format, &ap, i);
+	ft_realise(format, &ap);
 	va_end(ap);
-	return (i);
+	return (g_res);
 }
 
 // s - строка в яку записуємо результат даних оброблених специфікаторами
@@ -618,7 +673,9 @@ int main(void)
 	// printf("__________\n");
 	// printf("asma%0d aAaA % 012d", 10, 123);
 	//ft_printf("AWERT\n%-1.2d\n%i\n", 100, 789123456);
-	printf("%00+5zd\n", -10);
+	printf("%+10d\n", 787694);
+	ft_printf("%- h+++h10.8llzj12.5d\n", -787694);
+	//printf("%00+5zd\n", -10);
 //	printf("%c%c%c%c%c%c%c", 209, 133, 209, 131, 208, 185, 10);
 
 	return (0);
