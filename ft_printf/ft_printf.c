@@ -328,15 +328,24 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 		g_width--;
 	if (g_width)
 	{
-		if (!list->m || !list->z || (list->z && g_pres >= 0))
+		if (!list->m || (list->z && g_pres >= 0) || !list->z)
 		{
 			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
 			ft_put_len_space(g_width, ' ');
 		}
-		if (list->s || list->p)
-		{
-			write(1, "*", 1);
-		}
+	}
+	if (list->s || list->p)
+	{
+		if (list->res < 0)
+			write(1, "-", 1);
+		else if (list->p)
+			write(1, "+", 1);
+		else
+			write(1, " ", 1);
+	}
+	if (g_pres || (g_pres < 0 && list->zo && g_width))
+	{
+		write(1, "*", 1);
 	}
 
 	// if (number < 0 || list->m || list->s)
@@ -377,7 +386,7 @@ int		ft_atoi_wl(t_flist *list, int *i)
 	while (list->str[*i] >= '0' && list->str[*i] <= '9')
 	{
 		res = res * 10 + (list->str[*i] - '0');
-		list->str[*i] = '?';
+		list->str[*i] = ' ';
 		(*i)++;
 	}
 	return (res);
@@ -673,8 +682,22 @@ int main(void)
 	// printf("__________\n");
 	// printf("asma%0d aAaA % 012d", 10, 123);
 	//ft_printf("AWERT\n%-1.2d\n%i\n", 100, 789123456);
-	printf("%+10d\n", 787694);
-	ft_printf("%- h+++h10.8llzj12.5d\n", -787694);
+	//printf("%-10d*\n", 787694);
+	//ft_printf("%-0000 h+++h10.8llzj12.5d\n", -787694);
+	int b = 2;
+	switch (b)
+	{
+		case 1: printf("%d\n", 1);
+		case 2: printf("%d\n", 2);
+		case 3: printf("%d\n", 6);
+		case 4: printf("%s\n", "dfdf");
+		default : printf("%d\n", 33);
+	}
+
+	int a = 24;
+	char *ptr;
+	ptr = (char *)&a;
+	printf("%d\n", *ptr);
 	//printf("%00+5zd\n", -10);
 //	printf("%c%c%c%c%c%c%c", 209, 133, 209, 131, 208, 185, 10);
 
