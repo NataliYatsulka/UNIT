@@ -20,6 +20,27 @@
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
+void	ft_putchar(char c)
+{
+	write(1, &c, 1);
+}
+
+void	ft_put_nbr(intmax_t nb)
+{
+	if (nb < 0)
+	{
+		nb = (-1) * nb;
+		ft_putchar('-');
+	}
+	if (nb > 9)
+	{
+		ft_put_nbr(nb / 10);
+		ft_put_nbr(nb % 10);
+	}
+	else
+		ft_putchar(nb + '0');
+}
+
 void	ft_putstr(char const *s)
 {
 	int i;
@@ -94,7 +115,7 @@ size_t		ft_strlen(const char *s)
 	return (i);
 }
 
-void	f(int value, int base, char *s, int *i)
+void	f(intmax_t value, int base, char *s, int *i)
 {
 	char	*tmp;
 
@@ -104,13 +125,13 @@ void	f(int value, int base, char *s, int *i)
 	s[(*i)++] = tmp[(value % base) < 0 ? -(value % base) : (value % base)];
 }
 
-char	*ft_itoa_base(int value, int base)
+char	*ft_itoa_base(intmax_t value, int base)
 {
 	int		i;
 	char	*s;
 
-	i = 0;
-	if (base < 2 || base > 16 || !(s = (char *)malloc(32)))
+	i = -1;
+	if (base < 2 || base > 16 || !(s = (char *)malloc(66)))
 		return (0);
 	if (base == 10 && value < 0)
 		s[++i] = '-';
@@ -118,12 +139,6 @@ char	*ft_itoa_base(int value, int base)
 	s[i] = '\0';
 	return (s);
 }
-
-void	ft_putchar(char c)
-{
-	write(1, &c, 1);
-}
-
 
 void	ft_putnstr(char const *s, int len)
 {
@@ -299,7 +314,7 @@ intmax_t	ft_signed_size(t_flist *list, va_list *ap)
 
 void	ft_put_len_space(int len, char s)
 {
-	while (len >= 0)
+	while (len > 0)
 	{
 		write (1, &s, 1);
 		len--;
@@ -310,43 +325,80 @@ void	ft_put_len_space(int len, char s)
 void	ft_spec_d_i(t_flist *list, va_list *ap)
 {
 	intmax_t	number;
-	int 		len_arg;
+	int			len_arg;
 
-	if (list->j || list->z || list->l)
-		number = va_arg(*ap, long);
-	else if (list->ll)
-		number = va_arg(*ap, long long);
-	else if (list->h)
-		number = (short)va_arg(*ap, int);
-	else if (list->hh)
-		number = (char)va_arg(*ap, int);
-	else
-		number = (int)va_arg(*ap, int);
+	// if (list->j || list->z || list->l)
+	// 	number = va_arg(*ap, long);
+	// else if (list->ll)
+	// 	number = va_arg(*ap, long long);
+	// else if (list->h)
+	// 	number = (short)va_arg(*ap, int);
+	// else if (list->hh)
+	// 	number = (char)va_arg(*ap, int);
+	// else
+	// 	number = (int)va_arg(*ap, int);
+	number = ft_signed_size(list, ap);
+//	printf("{number = %jd}", number);
 	list->res = ft_itoa_base(number, 10);
 	len_arg = (int)ft_strlen(list->res);
-	if (number < 0 || ((list->p || list->s) && number > 0)) 
+	if (number < 0 || ((list->p || list->s) && number > 0))
 		g_width--;
 	if (g_width)
 	{
-		if (!list->m || (list->z && g_pres >= 0) || !list->z)
+		// printf("%d\n", list->m);
+		// printf("%d\n", list->zo);
+		// printf("%d\n", g_pres);
+
+		// if (list->m == 1 || (list->zo && g_pres >= 0) || list->zo == 1)
+		// {
+		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+		// 	ft_put_len_space(g_width, ' ');
+		// }
+
+		if (list->m == 1
+            || (list->zo && g_pres >= 0)
+            || !list->zo)
 		{
 			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
 			ft_put_len_space(g_width, ' ');
 		}
+
+		// if (number > 0 && list->m == 1)
+		// {
+		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+		// 	ft_put_len_space(g_width, ' ');
+		// }
+		// else if (number > 0 && list->zo && g_pres >= 0)
+		// {
+		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+		// 	ft_put_len_space(g_width, ' ');
+		// }
+		// else if (number > 0 && list->zo == 1)
+		// {
+		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+		// 	ft_put_len_space(g_width, ' ');
+		// }
 	}
 	if (list->s || list->p)
 	{
 		if (list->res < 0)
 			write(1, "-", 1);
-		else if (list->p)
+		else if (list->p && list->res >= 0)
 			write(1, "+", 1);
-		else
+		else if (list->s && number >= 0)
 			write(1, " ", 1);
 	}
 	if (g_pres || (g_pres < 0 && list->zo && g_width))
 	{
-		write(1, "*", 1);
+		if (g_width > len_arg)
+			while (g_width - len_arg)
+			{
+				(list->zo ? write(1, "0", 1) : write(1, " ", 1));
+				g_width--;
+			}
+		ft_put_nbr(number);
 	}
+
 
 	// if (number < 0 || list->m || list->s)
 	// 	g_width--;
@@ -462,20 +514,20 @@ void	ft_init_flags(t_flist *list, char *tmp, int i)
 	
 	
 
-	printf("\n\nwidth = %d\n", g_width);
-	printf("pres = %d\n", g_pres);
-	printf("\n\nm = %d\n", list->m);
-	printf("p = %d\n", list->p);
-	printf("s = %d\n", list->s);
-	printf("hs = %d\n", list->hs);
-	printf("zo = %d\n", list->zo);
-	printf("d = %d\n", list->d);
-	printf("h = %d\n", list->h);
-	printf("hh = %d\n", list->hh);
-	printf("l = %d\n", list->l);
-	printf("ll = %d\n", list->ll);		
-	printf("j = %d\n", list->j);
-	printf("z = %d\n\n", list->z);
+	// printf("\n\nwidth = %d\n", g_width);
+	// printf("pres = %d\n", g_pres);
+	// printf("\n\nm = %d\n", list->m);
+	// printf("p = %d\n", list->p);
+	// printf("s = %d\n", list->s);
+	// printf("hs = %d\n", list->hs);
+	// printf("zo = %d\n", list->zo);
+	// printf("d = %d\n", list->d);
+	// printf("h = %d\n", list->h);
+	// printf("hh = %d\n", list->hh);
+	// printf("l = %d\n", list->l);
+	// printf("ll = %d\n", list->ll);		
+	// printf("j = %d\n", list->j);
+	// printf("z = %d\n\n", list->z);
 }
 
 void	ft_list_zero(t_flist *list, int i)
@@ -683,22 +735,13 @@ int main(void)
 	// printf("asma%0d aAaA % 012d", 10, 123);
 	//ft_printf("AWERT\n%-1.2d\n%i\n", 100, 789123456);
 	//printf("%-10d*\n", 787694);
-	//ft_printf("%-0000 h+++h10.8llzj12.5d\n", -787694);
-	int b = 2;
-	switch (b)
-	{
-		case 1: printf("%d\n", 1);
-		case 2: printf("%d\n", 2);
-		case 3: printf("%d\n", 6);
-		case 4: printf("%s\n", "dfdf");
-		default : printf("%d\n", 33);
-	}
+	//ft_printf("A = %-0000 h+++h1.8llzj 1.5d/*\n", 56123456654123987);
+	ft_printf("M = %019ld/*\n", -123456789123456);
+	printf("O = %019ld/*\n", -123456789123456);
+	printf("S1 = %0 16d?\n", -9876543);
+	printf("S2 = %7d?\n", -12345);
+	printf("S3 = %+16d?\n", -123456789);
 
-	int a = 24;
-	char *ptr;
-	ptr = (char *)&a;
-	printf("%d\n", *ptr);
-	//printf("%00+5zd\n", -10);
 //	printf("%c%c%c%c%c%c%c", 209, 133, 209, 131, 208, 185, 10);
 
 	return (0);
