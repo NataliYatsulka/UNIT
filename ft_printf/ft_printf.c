@@ -30,7 +30,6 @@ void	ft_put_nbr(intmax_t nb)
 	if (nb < 0)
 	{
 		nb = (-1) * nb;
-		ft_putchar('-');
 	}
 	if (nb > 9)
 	{
@@ -355,9 +354,8 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 		// 	ft_put_len_space(g_width, ' ');
 		// }
 
-		if (list->m == 1
-            || (list->zo && g_pres >= 0)
-            || !list->zo)
+		if (list->m == 0 &&
+            ((list->zo && g_pres >= 0) || list->zo == 0))
 		{
 			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
 			ft_put_len_space(g_width, ' ');
@@ -379,21 +377,29 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 		// 	ft_put_len_space(g_width, ' ');
 		// }
 	}
-	if (list->s || list->p)
+	int pres = g_pres;
+	if (list->s || list->p || number < 0)
 	{
-		if (list->res < 0)
+		if (number < 0)
 			write(1, "-", 1);
-		else if (list->p && list->res >= 0)
+		else if (list->p && number > 0)// >= ??
 			write(1, "+", 1);
-		else if (list->s && number >= 0)
+		else if (list->s && number > 0)
 			write(1, " ", 1);
 	}
-	if (g_pres || (g_pres < 0 && list->zo && g_width))
+	if (pres || (pres < 0 && list->zo && g_width))
 	{
-		if (g_width > len_arg)
+		if (pres > len_arg)
+			while (pres - len_arg)
+			{
+				write(1, "0", 1);
+				pres--;
+			}
+		else if (g_width > len_arg)
 			while (g_width - len_arg)
 			{
-				(list->zo ? write(1, "0", 1) : write(1, " ", 1));
+				if (list->zo)
+					write(1, "0", 1);
 				g_width--;
 			}
 		ft_put_nbr(number);
