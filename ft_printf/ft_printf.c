@@ -134,6 +134,8 @@ char	*ft_itoa_base(intmax_t value, int base)
 		return (0);
 	if (base == 10 && value < 0)
 		s[++i] = '-';
+    else
+        i++;
 	f(value, base, s, &i);
 	s[i] = '\0';
 	return (s);
@@ -272,6 +274,7 @@ uintmax_t	ft_unsigned_size(t_flist *list, va_list *ap)
 	uintmax_t	number;
 
 	number = va_arg(*ap, intmax_t);
+	g_count_arg++;
 	if (list->j)
 		number = (uintmax_t)number;
 	else if (list->z)
@@ -294,6 +297,7 @@ intmax_t	ft_signed_size(t_flist *list, va_list *ap)
 	intmax_t	number;
 
 	number = va_arg(*ap, intmax_t);
+	g_count_arg++;
 	if (list->j)
 		number = (intmax_t)number;
 	else if (list->z)
@@ -325,64 +329,33 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 {
 	intmax_t	number;
 	int			len_arg;
+	int			pres;
+//	int 		space;
+//	int 		zero;
+	int 		sign;
 
-	// if (list->j || list->z || list->l)
-	// 	number = va_arg(*ap, long);
-	// else if (list->ll)
-	// 	number = va_arg(*ap, long long);
-	// else if (list->h)
-	// 	number = (short)va_arg(*ap, int);
-	// else if (list->hh)
-	// 	number = (char)va_arg(*ap, int);
-	// else
-	// 	number = (int)va_arg(*ap, int);
+	pres = g_pres;
 	number = ft_signed_size(list, ap);
-//	printf("{number = %jd}", number);
+//	sign = ((number < 0 || (number > 0 && (list->p || list->s))) ? 1 : 0);
 	list->res = ft_itoa_base(number, 10);
 	len_arg = (int)ft_strlen(list->res);
 	if (number < 0 || ((list->p || list->s) && number > 0))
 		g_width--;
-	if (g_width)
+	if (g_width > -1)
 	{
-		// printf("%d\n", list->m);
-		// printf("%d\n", list->zo);
-		// printf("%d\n", g_pres);
-
-		// if (list->m == 1 || (list->zo && g_pres >= 0) || list->zo == 1)
-		// {
-		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
-		// 	ft_put_len_space(g_width, ' ');
-		// }
-
-		if (list->m == 0 &&
-            ((list->zo && g_pres >= 0) || list->zo == 0))
+		sign = ((g_count_arg > 0 && (list->m == 1 || list->zo == 1 ||
+			list->s == 1 || list->p == 1 || number < 0) && g_pres > 0) ? 1 : 0);
+		if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
 		{
-			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+			g_width = g_width - sign - ((g_pres > len_arg) ? g_pres : len_arg);
 			ft_put_len_space(g_width, ' ');
 		}
-
-		// if (number > 0 && list->m == 1)
-		// {
-		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
-		// 	ft_put_len_space(g_width, ' ');
-		// }
-		// else if (number > 0 && list->zo && g_pres >= 0)
-		// {
-		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
-		// 	ft_put_len_space(g_width, ' ');
-		// }
-		// else if (number > 0 && list->zo == 1)
-		// {
-		// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
-		// 	ft_put_len_space(g_width, ' ');
-		// }
 	}
-	int pres = g_pres;
 	if (list->s || list->p || number < 0)
 	{
 		if (number < 0)
 			write(1, "-", 1);
-		else if (list->p && number > 0)// >= ??
+		else if (list->p && number >= 0)// >= ??
 			write(1, "+", 1);
 		else if (list->s && number > 0)
 			write(1, " ", 1);
@@ -395,17 +368,31 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 				write(1, "0", 1);
 				pres--;
 			}
-		else if (g_width > len_arg)
+		else if (g_width > len_arg || (g_pres > 0 && g_width > 0))
+		{
 			while (g_width - len_arg)
 			{
 				if (list->zo)
 					write(1, "0", 1);
+				else if (list->s)
+					write(1, " ", 1);
 				g_width--;
 			}
+		}
 		ft_put_nbr(number);
 	}
-
-
+	if (g_width > -1)
+	{
+		if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
+		{
+			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+			ft_put_len_space(g_width, ' ');
+		}
+	}
+	if (number == 0 && g_pres)
+		list->res = ft_strnew(1);
+	free(list->res);
+    
 	// if (number < 0 || list->m || list->s)
 	// 	g_width--;
 	// if (number < 0)
@@ -434,6 +421,7 @@ void	ft_delete_g_varib(t_flist *list)
 	g_width = 0;
 	g_sr = 0;
 	g_pres = -1;
+	g_count_arg = 0;
 }
 
 int		ft_atoi_wl(t_flist *list, int *i)
@@ -444,7 +432,7 @@ int		ft_atoi_wl(t_flist *list, int *i)
 	while (list->str[*i] >= '0' && list->str[*i] <= '9')
 	{
 		res = res * 10 + (list->str[*i] - '0');
-		list->str[*i] = ' ';
+		list->str[*i] = 'A';
 		(*i)++;
 	}
 	return (res);
@@ -517,23 +505,6 @@ void	ft_init_flags(t_flist *list, char *tmp, int i)
 	}
 	if (list->h == 1 || list->l == 1)
 		ft_list_lh(list);
-	
-	
-
-	// printf("\n\nwidth = %d\n", g_width);
-	// printf("pres = %d\n", g_pres);
-	// printf("\n\nm = %d\n", list->m);
-	// printf("p = %d\n", list->p);
-	// printf("s = %d\n", list->s);
-	// printf("hs = %d\n", list->hs);
-	// printf("zo = %d\n", list->zo);
-	// printf("d = %d\n", list->d);
-	// printf("h = %d\n", list->h);
-	// printf("hh = %d\n", list->hh);
-	// printf("l = %d\n", list->l);
-	// printf("ll = %d\n", list->ll);		
-	// printf("j = %d\n", list->j);
-	// printf("z = %d\n\n", list->z);
 }
 
 void	ft_list_zero(t_flist *list, int i)
@@ -558,6 +529,7 @@ void	ft_list_zero(t_flist *list, int i)
 	list->j = 0;
 	list->z = 0;
 	g_pres = -1;
+	g_count_pres = 0;
 }
 
 char	*ft_strnchar(char *start, char *spec)
@@ -644,7 +616,8 @@ int		ft_printf(const char *format, ...)
 
 	g_res = 0;
 	va_start(ap, format);
-	ft_realise(format, &ap);
+	g_count_arg = 0;
+    ft_realise(format, &ap);
 	va_end(ap);
 	return (g_res);
 }
@@ -687,68 +660,18 @@ int		ft_printf(const char *format, ...)
 
 int main(void)
 {
-//	int		i;
-	// int		*a;
-	// *a = "65, 66, 67";
 
-//	i = ft_printf("ssd");
-//	ft_printf("num = 123%456789\n");
-//	printf("%s\n %d \n%c\n\n", "wdewew", 123, 'a');
-//	printf("d = %d\n",ft_printf("%d", 123));
-	// printf("%#x\n", 99);
-	// printf("kharacters: %c %c\n", 'a', 65);
-	// printf("Decimals: %d %ld\n", 1977, 650000L);
-	// printf("Preceding with blanks: %10d \n", 1977);
-	// printf("Preceding with zeros: %010d \n", 1977);
-	// printf("Some different radices: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
-	// printf("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
-	// printf("Width trick: %*d \n", 5, 10);
-	// printf("%s \n", "A string");
-	// printf("%h5.2+f\n", 123.0);
-//	printf("count_ft = %d\n", ft_printf("%123456789asdf.;'\""));
-//    printf("%%%%\n");
-//	ft_printf("1 = asd %%asd %d|\n", 123);
-//    printf("2 = asd %%asd %d|\n", 123);
-//    ft_printf("-------------------------------\n");
-//    ft_printf("3 = sdf&& %% as%% %% %d %s|\n", 159, "QWERT");
-//    printf("4 = sdf&& %% as%% %% %d %s|\n", 159, "QWERT");
-//    ft_printf("--ft-----------------------------\n");
-//    printf("n_ft = %d\n", ft_printf("5 = asd %%asd %s|\n", "QW"));
-//    ft_printf("---pr----------------------------\n");
-//    printf("n_p = %d\n", printf("6 = asd %%asd %s|\n", "QW"));
-//
-//    ft_printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-//    ft_printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-//    ft_printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-//    ft_printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
- //    printf("5 = %---+-.9h  000d|\n", 123);
- //    printf("6 = %---+-h  000d|\n", 123);
-	// printf("%c%c%c\n", 209, 133);
-	// printf("%c%c\n", 209, 131);
-	// printf("%c%c%c\n",208, 185);
- //    printf("%c%c\n", 209, 134);
- //    printf("%c%c\n", 209, 135);
- //    printf("%c%c\n", 209, 136);
- //    printf("%c%c%c\n",208, 186);
- //    printf("%c%c%c\n",208, 187);
-//	printf("123:%-d 456:%+d -789:%-d 951:%0d 753:%0+d 654:%+0d 852:%10.7d 258:% 5d 321:%    .8d\n",
-//			123, 456, -789, 951, 753, 654, 852, 258, 321);
-	//printf("123:%-+0#  l 110d| 456:%-10d|\n", 123, -456);
-//	printf("%012.3b%%\n");
+	ft_printf("M1 = %0+ll29zdA%0.5dqqqq%z00000lhl+lllh-#d%0+10.5d/||\n", -123456789123456, 2345, 987654321, 0);
+	printf("O1 = %0+ll29zdA%0.5dqqqq%z0000+0lhllllh-#d%0+10.5d/||\n", -123456789123456, 2345, 987654321, 0);
+	ft_printf("M2 = %0 .18-16d||\n", -9876543);
+	printf("O2 = %0 .18-16d||\n", -9876543);
+	ft_printf("M3 = %7d||\n", -12345);
+	printf("O3 = %7d||\n", -12345);
+	ft_printf("M4 = %018.15d||\n", -123456789);
+	printf("O4 = %018.15d||\n", -123456789);
+	ft_printf("M5 = %0+-12.5 0d/||\n", 55);
+	printf("O5 = %0+-12.5 0d/||\n", 55);
 
-	// ft_printf("asma%0d aAaA% -0 102.6. 7.  a 10.8d\n", 10, 123);
-	// printf("__________\n");
-	// printf("asma%0d aAaA % 012d", 10, 123);
-	//ft_printf("AWERT\n%-1.2d\n%i\n", 100, 789123456);
-	//printf("%-10d*\n", 787694);
-	//ft_printf("A = %-0000 h+++h1.8llzj 1.5d/*\n", 56123456654123987);
-	ft_printf("M = %019ld/*\n", -123456789123456);
-	printf("O = %019ld/*\n", -123456789123456);
-	printf("S1 = %0 16d?\n", -9876543);
-	printf("S2 = %7d?\n", -12345);
-	printf("S3 = %+16d?\n", -123456789);
-
-//	printf("%c%c%c%c%c%c%c", 209, 133, 209, 131, 208, 185, 10);
 
 	return (0);
 }
