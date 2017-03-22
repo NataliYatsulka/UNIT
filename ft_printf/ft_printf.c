@@ -178,97 +178,6 @@ void	ft_bzero(void *s, size_t n)
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
 
-// // відповідно до флагу, обробляє arg
-// void	ft_flag(char *s, va_list *ap, char flag, int *i)
-// {
-// 	void	*arg;
-// 	char *a;
-// 	s_f_list	list;
-
-// 	if (list == NULL)
-	
-// 	// if (flag == 'd')
-// 	// {
-// 	// 	arg = va_arg(*ap, void *);
-// 	// 	a = ft_itoa_base((int)arg, 10);
-// 	// }
-// 	// else
-// 	// 	if (flag == 's')
-// 	// 	{
-// 	// 		arg = va_arg(*ap, void *);
-// 	// 		a = (char *)arg;
-// 	// 	}
-// 	ft_putstr(a);
-// }
-
-
-// // повертає: s - обролену
-// char	*ft_just_do_it(char *s, va_list *ap)
-// {
-// 	char	flag;
-
-// 	s++;
-// 	if (*s == '%')
-// 	{
-// 		write(1, "%", 1);
-// 		i++;
-// 	}
-// 	if (*s == 'd')
-// 	{
-// 		flag = 'd';
-// 		ft_flag(s, ap, flag, &i);
-// 	}
-// 	if (*s == 's')
-// 	{
-// 		flag = 's';
-// 		ft_flag(s, ap, flag, &i);
-// 	}
-// 	return (s);
-// }
-
-/*
-	char			g_sr;
-
-	char			*str;//рядок з флагами, необроблений
-	int				m;//-
-	int				p;//+
-	int				s;//space
-	int				hs;//#
-	int				zo;//0
-	int				w;//width
-	int				prs;//precision
-	char			*res;//рядок з обробленими флагами
-	int				h;
-	int				hh;
-	int				j;
-	int				l;
-	int				ll;
-	int				z;
-*/
-
-// void	ft_spec_len(t_flist *list)
-// {
-// 	if (list->j || list->z || list->ll || list->l || list->h || list->hh)
-// 	{
-// 		if (list->j)
-
-
-// 	}
-// }
-
-// void	ft_flags(t_flist *list, intmax_t *num)
-// {
-// 	if (list->m)
-// 	{
-// 		printf("%d", num);
-// 		while (g_width > 0)
-// 		{
-// 			printf(" ");
-// 			g_width--;
-// 		}
-// 	}
-// }
-
 uintmax_t	ft_unsigned_size(t_flist *list, va_list *ap)
 {
 	uintmax_t	number;
@@ -330,24 +239,20 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 	intmax_t	number;
 	int			len_arg;
 	int			pres;
-//	int 		space;
-//	int 		zero;
 	int 		sign;
 
 	pres = g_pres;
 	number = ft_signed_size(list, ap);
-//	sign = ((number < 0 || (number > 0 && (list->p || list->s))) ? 1 : 0);
+	sign = ((number < 0 || (number >= 0 && (list->p || list->s))) ? 1 : 0);
 	list->res = ft_itoa_base(number, 10);
-	len_arg = (int)ft_strlen(list->res);
-	if (number < 0 || ((list->p || list->s) && number > 0))
+	len_arg = (number == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
+	if (sign > 0)
 		g_width--;
 	if (g_width > -1)
 	{
-		sign = ((g_count_arg > 0 && (list->m == 1 || list->zo == 1 ||
-			list->s == 1 || list->p == 1 || number < 0) && g_pres > 0) ? 1 : 0);
 		if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
 		{
-			g_width = g_width - sign - ((g_pres > len_arg) ? g_pres : len_arg);
+			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
 			ft_put_len_space(g_width, ' ');
 		}
 	}
@@ -355,7 +260,7 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 	{
 		if (number < 0)
 			write(1, "-", 1);
-		else if (list->p && number >= 0)// >= ??
+		else if (list->p && number >= 0)
 			write(1, "+", 1);
 		else if (list->s && number > 0)
 			write(1, " ", 1);
@@ -363,24 +268,23 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 	if (pres || (pres < 0 && list->zo && g_width))
 	{
 		if (pres > len_arg)
-			while (pres - len_arg)
+			while ((pres - len_arg))
 			{
 				write(1, "0", 1);
 				pres--;
 			}
-		else if (g_width > len_arg || (g_pres > 0 && g_width > 0))
+		else if (g_pres < 0 && g_width > len_arg)
 		{
 			while (g_width - len_arg)
 			{
-				if (list->zo)
-					write(1, "0", 1);
-				else if (list->s)
-					write(1, " ", 1);
+				write(1, "0", 1);
 				g_width--;
 			}
 		}
-		ft_put_nbr(number);
 	}
+	if (len_arg)
+		ft_put_nbr(number);
+
 	if (g_width > -1)
 	{
 		if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
@@ -392,27 +296,6 @@ void	ft_spec_d_i(t_flist *list, va_list *ap)
 	if (number == 0 && g_pres)
 		list->res = ft_strnew(1);
 	free(list->res);
-    
-	// if (number < 0 || list->m || list->s)
-	// 	g_width--;
-	// if (number < 0)
-	// 	write(1, "-",1);
-	// else if (number >= 0)
-	// {
-	// 	i = (int)ft_strlen(ft_itoa_base(number, 10));
-	// 	if (i < g_width)
-	// 		while ((g_width - i) > 0)
-	// 		{
-	// 			write(1, "/", 1);
-	// 			g_width--;
-	// 		}
-	// }
-	// if (number == 0 && g_pres)
-	// 	list->res = ft_strnew(1);
-	// else
-	// 	list->res = ft_itoa_base(number, 10);
-	// ft_putstr(list->res);
-	// free(list->res);
 }
 
 void	ft_delete_g_varib(t_flist *list)
@@ -570,20 +453,23 @@ void	ft_just_do_it(char **start, va_list *ap)
 	tmp = *start;
 	*start = ft_strnchar(*start, "%sSpdDioOuUxXcC");
 	i = *start - tmp;
+	// if (g_sr == '%')
+	// 	ft_p_proc(list);
 	if ((list = (t_flist *)malloc(sizeof(t_flist))) == NULL)
 		return ;
 	ft_list_zero(list, i);
 	ft_init_flags(list, tmp + 1, i);
 	if (g_sr == 'd' || g_sr == 'i')
 		ft_spec_d_i(list, ap);
-	// if (g_sr == 'u' || g_sr == 'U' || g_sr == 'o' || g_sr == 'O'
-	// 	|| g_sr == 'x' || g_sr == 'X')
-	// 	ft_unsigned_size(list, ap);
-	// if (g_sr == '%' || || g_sr == '%')
-	// 	ft_p_proc(list);
-	// if (g_sr == 'D' || g_sr == 's' || g_sr == 'S' || g_sr == 'S' ||
+//	if (g_sr == 'D')
+//		ft_spec_D(list, ap);
+	// if (g_sr == 'u' || g_sr == 'U')
+	// 	ft_spec_u_U(list, ap);
+	// if (g_sr == 'o' || g_sr == 'O' || g_sr == 'x' || g_sr == 'X')
+	// 	ft_spec_o_O_x_X(list, ap);
+	// if (g_sr == 's' || g_sr == 'S' || g_sr == 'S' ||
 	// 	g_sr == 'c' || g_sr == 'C')
-	// 	ft_char_sp(list, ap);
+	// 	ft_spec_c_C(list, ap);
 	ft_delete_g_varib(list);
 }
 
@@ -616,40 +502,12 @@ int		ft_printf(const char *format, ...)
 
 	g_res = 0;
 	va_start(ap, format);
-	g_count_arg = 0;
+//	g_count_arg = 0;
     ft_realise(format, &ap);
 	va_end(ap);
 	return (g_res);
 }
 
-// s - строка в яку записуємо результат даних оброблених специфікаторами
-// повертає: число виведених символів
-// int		ft_realise(const char *format, va_list *ap, int i)
-// {
-// //	t_flag	list;
-// 	char	*s;
-
-// 	s = (char *)format;
-// 	while (*s)
-// 	{
-// 		if (*s && *s != '%')
-// 		{
-// 			write(1, s, 1);
-// 			i++;
-// 		}
-// 		else
-// 			if (*s && *s == '%')
-// 				s  = ft_just_do_it(s, ap, i);					
-// 		s++;
-// 	}
-// 	while (*s)
-// 	{
-// 		printf("%c", *s);
-// 		s++;
-// 	}
-// 	printf("\n");
-// 	return (i);
-// }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
@@ -660,11 +518,13 @@ int		ft_printf(const char *format, ...)
 
 int main(void)
 {
-
+	ft_printf("__________________spec d & i_____________________\n");
 	ft_printf("M1 = %0+ll29zdA%0.5dqqqq%z00000lhl+lllh-#d%0+10.5d/||\n", -123456789123456, 2345, 987654321, 0);
 	printf("O1 = %0+ll29zdA%0.5dqqqq%z0000+0lhllllh-#d%0+10.5d/||\n", -123456789123456, 2345, 987654321, 0);
-	ft_printf("M2 = %0 .18-16d||\n", -9876543);
-	printf("O2 = %0 .18-16d||\n", -9876543);
+	ft_printf("M1 = %0+10.0d/||\n", 0);
+	printf("O1 = %0+10.0d/||\n", 0);
+	ft_printf("M2 = %0 .-16d||\n", -9876543);
+	printf("O2 = %0 .-16d||\n", -9876543);
 	ft_printf("M3 = %7d||\n", -12345);
 	printf("O3 = %7d||\n", -12345);
 	ft_printf("M4 = %018.15d||\n", -123456789);
