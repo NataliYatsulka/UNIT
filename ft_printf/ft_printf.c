@@ -25,6 +25,35 @@ void	ft_putchar(char c)
 	write(1, &c, 1);
 }
 
+void	ft_putstr(char const *s)
+{
+	if (s)
+	{
+		while (*s)
+		{
+			ft_putchar(*s);
+			s++;
+		}
+	}
+}
+
+void	ft_put_unbr(uintmax_t nb)
+{
+	if (nb < 0)
+	{
+		nb = (-1) * nb;
+	}
+	if (nb > 9)
+	{
+		ft_put_unbr(nb / 10);
+		ft_put_unbr(nb % 10);
+	}
+	else
+	{
+		ft_putchar(nb + '0');
+	}
+}
+
 void	ft_put_nbr(intmax_t nb)
 {
 	if (nb < 0)
@@ -39,20 +68,6 @@ void	ft_put_nbr(intmax_t nb)
 	else
 	{
 		ft_putchar(nb + '0');
-	}
-}
-
-void	ft_putstr(char const *s)
-{
-	int i;
-
-	i = 0;
-	if (s == '\0')
-		return ;
-	while (s[i])
-	{
-		ft_putchar(s[i]);
-		i++;
 	}
 }
 
@@ -184,8 +199,7 @@ uintmax_t	ft_unsigned_size(t_flist *list, va_list *ap)
 {
 	uintmax_t	number;
 
-	number = va_arg(*ap, intmax_t);
-	g_count_arg++;
+	number = va_arg(*ap, uintmax_t);
 	if (list->j)
 		number = (uintmax_t)number;
 	else if (list->z)
@@ -208,7 +222,6 @@ intmax_t	ft_signed_size(t_flist *list, va_list *ap)
 	intmax_t	number;
 
 	number = va_arg(*ap, intmax_t);
-	g_count_arg++;
 	if (list->j)
 		number = (intmax_t)number;
 	else if (list->z)
@@ -233,6 +246,88 @@ void	ft_put_len_space(int len, char s)
 		write (1, &s, 1);
 		len--;
 		g_res++;
+	}
+}
+
+void	ft_sign_o(t_flist *list, int len_arg, int pres)
+{
+	if (list->hs)
+		ft_put_len_space(1, '0');
+    if (pres >= 0 || (pres < 0 && list->zo && g_width))
+	{
+		if (pres > len_arg)
+		{
+			ft_put_len_space(pres - len_arg - list->hs, '0');
+			pres = len_arg - list->hs;
+		}
+		else if (g_pres < 0 && g_width > len_arg)
+        {
+			ft_put_len_space(g_width - len_arg - list->hs, '0');
+			g_width = len_arg - list->hs;
+		}
+	}
+}
+
+uintmax_t	ft_spec_O(t_flist *list, va_list *ap)
+{
+	uintmax_t	number;
+
+	number = va_arg(*ap, uintmax_t);
+	number = (unsigned long int)number;
+	return (number);
+}
+
+void	ft_write_number_o(t_flist *list, int len_arg)
+{
+//	if (list->hs)
+//		ft_put_len_space(1, '0');
+	if (len_arg)
+		ft_putstr(list->res);
+	if (g_width > -1)
+	{
+		if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
+		{
+			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+			ft_put_len_space(g_width, ' ');
+		}
+	}
+	if (list->res == 0 && g_pres)
+		list->res = ft_strnew(1);
+}
+
+
+
+void	ft_spec_o_O_x_X(t_flist *list, va_list *ap)
+{
+	uintmax_t	number;
+	int			len_arg;
+	int			pres;
+	int			sign;
+
+	pres = g_pres;
+	number = (g_sr != 'O' ? ft_unsigned_size(list, ap) : ft_spec_O(list, ap));
+	list->res = ft_itoa_base(number, 8);
+	sign = (list->hs == 1 ? 1 : 0);
+	len_arg = (list->res == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
+	if (g_sr == 'o' || g_sr == "O")
+	{
+		if (sign > 0)
+			g_width--;
+		if (g_width > -1)
+		{
+			if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
+			{
+				g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+				ft_put_len_space(g_width, ' ');
+			}
+		}
+		ft_sign_o(list, len_arg, pres);
+		ft_write_number_o(list, len_arg);
+		free(list->res);
+	}
+	else
+	{
+		write(1, "YES", 3);
 	}
 }
 
@@ -263,7 +358,7 @@ void	ft_sign(t_flist *list, intmax_t number, int len_arg, int pres)
 		else if (list->s && number > 0)
 			ft_put_len_space(1, ' ');
 	}
-	if (pres || (pres < 0 && list->zo && g_width))
+	if (pres >= 0|| (pres < 0 && list->zo && g_width))
 	{
 		if (pres > len_arg)
 		{
@@ -277,13 +372,14 @@ void	ft_sign(t_flist *list, intmax_t number, int len_arg, int pres)
 		}
 	}
 }
+
 intmax_t	ft_spec_D(t_flist *list, va_list *ap)
 {
 	intmax_t	number;
 
 	number = va_arg(*ap, intmax_t);
 	number = (long int)number;
-    return (number);
+	return (number);
 }
 
 void	ft_spec_d_i(t_flist *list, va_list *ap)
@@ -478,8 +574,8 @@ void	ft_just_do_it(char **start, va_list *ap)
 		ft_spec_d_i(list, ap);
 	// if (g_sr == 'u' || g_sr == 'U')
 	// 	ft_spec_u_U(list, ap);
-	// if (g_sr == 'o' || g_sr == 'O' || g_sr == 'x' || g_sr == 'X')
-	// 	ft_spec_o_O_x_X(list, ap);
+	if (g_sr == 'o' || g_sr == 'O' || g_sr == 'x' || g_sr == 'X')
+		ft_spec_o_O_x_X(list, ap);
 	// if (g_sr == 's' || g_sr == 'S' || g_sr == 'S' ||
 	// 	g_sr == 'c' || g_sr == 'C')
 	// 	ft_spec_c_C(list, ap);
@@ -552,8 +648,27 @@ int main(void)
 	// // printf("D = %d\n", printf("M4 = %018.15d||\n", -123456789));
 	// printf("O = %d\n", printf("O1 = %0+10.0d/||\n", 0));
 	// printf("M = %d\n", ft_printf("O1 = %0+10.0d/||\n", 0));
-	printf("O=%+0 28.22D||\n", 12345678912345678912);
-	ft_printf("M=%+0 28.22D||\n", 12345678912345678912);
+	// printf("O=%+0 28.22D||\n", 12345678912345678912);
+	// ft_printf("M=%+0 28.22D||\n", 12345678912345678912);
+	// printf("O4 =%20d||\n", 123456);
+	// ft_printf("M4 =%20d||\n", 123456);
+
+	// ft_printf("__________________spec o_____________________\n");
+
+	printf("O1 =%-+ 20.8o||\n", 123456);
+	ft_printf("M1 =%-+ 20.8o||\n", 123456);
+
+	printf("O2 =%-+ #17.10o||\n", 123456);
+	ft_printf("M2 =%-+ #17.10o||\n", 123456);
+
+	printf("O3 =%- #25.20o||\n", -123456);
+	ft_printf("M3 =%- #25.20o||\n", -123456);
+
+	printf("O4 =%#12o||\n", 123456);
+	ft_printf("M4 =%#12o||\n", 123456);
+
+	printf("O5 =%#12.hho||\n", 123456);
+	ft_printf("M5 =%#12.hho||\n", 123456);
 
 	return (0);
 }
