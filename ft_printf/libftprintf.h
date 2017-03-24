@@ -51,8 +51,10 @@ typedef struct		s_flist
 	int				z;
 }					t_flist;
 
-int					main(void);
-int					ft_printf(const char *format, ...);
-void					ft_realise(const char *format, va_list *ap);
+int		ft_printf(const char *format, ...);
+
+// int					main(void);
+// int					ft_printf(const char *format, ...);
+// void					ft_realise(const char *format, va_list *ap);
 
 #endif

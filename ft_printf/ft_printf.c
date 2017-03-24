@@ -249,25 +249,6 @@ void	ft_put_len_space(int len, char s)
 	}
 }
 
-void	ft_sign_o(t_flist *list, int len_arg, int pres)
-{
-	if (list->hs)
-		ft_put_len_space(1, '0');
-    if (pres >= 0 || (pres < 0 && list->zo && g_width))
-	{
-		if (pres > len_arg)
-		{
-			ft_put_len_space(pres - len_arg - list->hs, '0');
-			pres = len_arg - list->hs;
-		}
-		else if (g_pres < 0 && g_width > len_arg)
-        {
-			ft_put_len_space(g_width - len_arg - list->hs, '0');
-			g_width = len_arg - list->hs;
-		}
-	}
-}
-
 uintmax_t	ft_spec_O(t_flist *list, va_list *ap)
 {
 	uintmax_t	number;
@@ -277,7 +258,40 @@ uintmax_t	ft_spec_O(t_flist *list, va_list *ap)
 	return (number);
 }
 
-void	ft_write_number_o(t_flist *list, int len_arg)
+void	ft_sign_o(t_flist *list, int len_arg, int pres, uintmax_t number)
+{
+	if (list->hs && number != 0)
+	{
+		ft_put_len_space(1, '0');
+		if (pres > 0)
+			pres--;
+		// if (list->m)
+		// {
+		// 	ft_put_len_space(1, '0');
+		// 	pres--;
+		// }
+		// else if (list->m == 0)
+		// {
+		// 	ft_put_len_space(1, '0');
+		// 	pres++;
+		// }		
+	}
+    if (pres >= 0 || (pres < 0 && list->zo && g_width))
+	{
+		if (pres > len_arg)
+		{
+			ft_put_len_space(pres - len_arg, '0');
+			pres = len_arg;
+		}
+		else if (g_pres < 0 && g_width > len_arg)
+        {
+			ft_put_len_space(g_width - len_arg, '0');
+			g_width = len_arg;
+		}
+	}
+}
+
+void	ft_write_number_o(t_flist *list, int len_arg, uintmax_t number)
 {
 //	if (list->hs)
 //		ft_put_len_space(1, '0');
@@ -287,15 +301,13 @@ void	ft_write_number_o(t_flist *list, int len_arg)
 	{
 		if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
 		{
-			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
+			g_width = g_width - ((g_pres > len_arg) ? g_pres - list->hs : len_arg);
 			ft_put_len_space(g_width, ' ');
 		}
 	}
-	if (list->res == 0 && g_pres)
-		list->res = ft_strnew(1);
+	// if (number == 0 && g_pres == 0 && list->hs)
+	// 	list->res = ft_strnew(1);
 }
-
-
 
 void	ft_spec_o_O_x_X(t_flist *list, va_list *ap)
 {
@@ -307,11 +319,10 @@ void	ft_spec_o_O_x_X(t_flist *list, va_list *ap)
 	pres = g_pres;
 	number = (g_sr != 'O' ? ft_unsigned_size(list, ap) : ft_spec_O(list, ap));
 	list->res = ft_itoa_base(number, 8);
-	sign = (list->hs == 1 ? 1 : 0);
 	len_arg = (list->res == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
 	if (g_sr == 'o' || g_sr == "O")
 	{
-		if (sign > 0)
+		if (list->hs > 0  && number != 0)
 			g_width--;
 		if (g_width > -1)
 		{
@@ -321,8 +332,8 @@ void	ft_spec_o_O_x_X(t_flist *list, va_list *ap)
 				ft_put_len_space(g_width, ' ');
 			}
 		}
-		ft_sign_o(list, len_arg, pres);
-		ft_write_number_o(list, len_arg);
+		ft_sign_o(list, len_arg, pres, number);
+		ft_write_number_o(list, len_arg, number);
 		free(list->res);
 	}
 	else
@@ -626,49 +637,102 @@ int		ft_printf(const char *format, ...)
 
 int main(void)
 {
-	// ft_printf("__________________spec d & i_____________________\n");
-	// ft_printf("M1 = %0+ll29zdA%0.5dqqqq%z00000lhl+lllh-#d%0+10.5d/||\n",
-	// 	-123456789123456, 2345, 987654321, 0);
-	// printf("O1 = %0+ll29zdA%0.5dqqqq%z0000+0lhllllh-#d%0+10.5d/||\n",
-	// 	-123456789123456, 2345, 987654321, 0);
-	// ft_printf("M1 = %0+10.0d/||\n", 0);
-	// printf("O1 = %0+10.0d/||\n", 0);
-	// ft_printf("M2 = %0 .-16d||\n", -9876543);
-	// printf("O2 = %0 .-16d||\n", -9876543);
-	// ft_printf("M3 = %7d||\n", -12345);
-	// printf("O3 = %7d||\n", -12345);
-	// ft_printf("M4 = %018.15d||\n", -123456789);
-	// printf("O4 = %018.15d||\n", -123456789);
-	// ft_printf("M5 = %0+-12.5 0d/||\n", 55);
-	// printf("O5 = %0+-12.5 0d/||\n", 55);
-	// ft_printf("__________________spec D_____________________\n");
-	// printf("O1 = %+0 +12.8D||\n", -1234567891234567);
-	// ft_printf("M1 = %+0 +12.8D||\n", -1234567891234567);
-	// // printf("D = %d\n", ft_printf("M4 = %018.15d||\n", -123456789));
-	// // printf("D = %d\n", printf("M4 = %018.15d||\n", -123456789));
-	// printf("O = %d\n", printf("O1 = %0+10.0d/||\n", 0));
-	// printf("M = %d\n", ft_printf("O1 = %0+10.0d/||\n", 0));
-	// printf("O=%+0 28.22D||\n", 12345678912345678912);
-	// ft_printf("M=%+0 28.22D||\n", 12345678912345678912);
-	// printf("O4 =%20d||\n", 123456);
-	// ft_printf("M4 =%20d||\n", 123456);
+// 	// ft_printf("__________________spec d & i_____________________\n");
+// 	// ft_printf("M1 = %0+ll29zdA%0.5dqqqq%z00000lhl+lllh-#d%0+10.5d/||\n",
+// 	// 	-123456789123456, 2345, 987654321, 0);
+// 	// printf("O1 = %0+ll29zdA%0.5dqqqq%z0000+0lhllllh-#d%0+10.5d/||\n",
+// 	// 	-123456789123456, 2345, 987654321, 0);
+// 	// ft_printf("M1 = %0+10.0d/||\n", 0);
+// 	// printf("O1 = %0+10.0d/||\n", 0);
+// 	// ft_printf("M2 = %0 .-16d||\n", -9876543);
+// 	// printf("O2 = %0 .-16d||\n", -9876543);
+// 	// ft_printf("M3 = %7d||\n", -12345);
+// 	// printf("O3 = %7d||\n", -12345);
+// 	// ft_printf("M4 = %018.15d||\n", -123456789);
+// 	// printf("O4 = %018.15d||\n", -123456789);
+// 	// ft_printf("M5 = %0+-12.5 0d/||\n", 55);
+// 	// printf("O5 = %0+-12.5 0d/||\n", 55);
+// 	// ft_printf("__________________spec D_____________________\n");
+// 	// printf("O1 = %+0 +12.8D||\n", -1234567891234567);
+// 	// ft_printf("M1 = %+0 +12.8D||\n", -1234567891234567);
+// 	// // printf("D = %d\n", ft_printf("M4 = %018.15d||\n", -123456789));
+// 	// // printf("D = %d\n", printf("M4 = %018.15d||\n", -123456789));
+// 	// printf("O = %d\n", printf("O1 = %0+10.0d/||\n", 0));
+// 	// printf("M = %d\n", ft_printf("O1 = %0+10.0d/||\n", 0));
+// 	// printf("O=%+0 28.22D||\n", 12345678912345678912);
+// 	// ft_printf("M=%+0 28.22D||\n", 12345678912345678912);
+// 	// printf("O4 =%20d||\n", 123456);
+// 	// ft_printf("M4 =%20d||\n", 123456);
 
-	// ft_printf("__________________spec o_____________________\n");
+// 	ft_printf("__________________spec o_____________________\n");
 
-	printf("O1 =%-+ 20.8o||\n", 123456);
-	ft_printf("M1 =%-+ 20.8o||\n", 123456);
+// 	printf("---------------+ 20.8---------- 123456 -------------\n");
 
-	printf("O2 =%-+ #17.10o||\n", 123456);
-	ft_printf("M2 =%-+ #17.10o||\n", 123456);
+// 	printf("O1 =%-+ 20.8o||\n", 123456);
+// 	ft_printf("M1 =%-+ 20.8o||\n", 123456);
 
-	printf("O3 =%- #25.20o||\n", -123456);
-	ft_printf("M3 =%- #25.20o||\n", -123456);
+// 	printf("--------------- -#+ 20.8---------- -123456 -------------\n");
 
-	printf("O4 =%#12o||\n", 123456);
-	ft_printf("M4 =%#12o||\n", 123456);
+// 	printf("O11 =%-#+ 20.8o||\n", -123456);
+// 	ft_printf("M11 =%-#+ 20.8o||\n", -123456);
 
-	printf("O5 =%#12.hho||\n", 123456);
-	ft_printf("M5 =%#12.hho||\n", 123456);
+// 	printf("--------+ #17.10----------------  123456--------------\n");
+
+// 	printf("O2 =%-+ #17.10o||\n", 123456);
+// 	ft_printf("M2 =%-+ #17.10o||\n", 123456);
+
+// 	printf("-------------- - 0 #25.20--------------- -123456 ---------\n");
+
+// 	printf("O3 =%- 0 #25.20o||\n", -123456);
+// 	ft_printf("M3 =%- 0 #25.20o||\n", -123456);
+
+// 	printf("----------#12-------------------- 123456-------\n");
+
+// 	printf("O4 =%#12o||\n", 123456);
+// 	ft_printf("M4 =%#12o||\n", 123456);
+
+// 	printf("-------------#12.hh------------------ 123456------\n");
+
+// 	printf("O5 =%#12.hho||\n", 123456);
+// 	ft_printf("M5 =%#12.hho||\n", 123456);
+
+// 	printf("-------#12.hh--------------- 0---------------\n");
+
+// 	printf("O6 =%#12.0hho||\n", 0);
+// 	ft_printf("M6 =%#12.0hho||\n", 0);
+
+// 	printf("-------#12hh--------------- 0---------------\n");
+
+// 	printf("O7 =%# 0 12.hho||\n", 1);
+// 	ft_printf("M7 =%# 0 12.hho||\n", 1);
+
+// 	printf("-------# 0 12hh--------------- 0---------------\n");
+
+// 	printf("O8 =%# 0 12hho||\n", 0);
+// 	ft_printf("M8 =%# 0 12hho||\n", 0);
+
+// 	printf("-------# 0 12hh--------------- -6---------------\n");
+
+// 	printf("O8_1 =%# 0 12hho||\n", -6);
+// 	ft_printf("M8_1 =%# 0 12hho||\n", -6);
+
+// 	printf("-------# 12hh--------------- 0---------------\n");
+
+// 	printf("O9 =%# 12hho||\n", 0);
+// 	ft_printf("M9 =%# 12hho||\n", 0);
+
+// 	printf("-------# 12hh--------------- 1---------------\n");
+
+// 	printf("O_10 =%# 12hho||\n", 1);
+// 	ft_printf("M_10 =%# 12hho||\n", 1);
+
+// 	printf("-------# 12hh--------------- 1---------------\n");
+
+// 	printf("O_11 =%# 12hho||\n", 0);
+// 	ft_printf("M_11 =%# 12hho||\n", 0);
+
+	printf("orig = |%-12.8.5i||%12.-8.5i||%-12.-8.5i||%-12.-8.-5i|\n", 42, 42, 42, 42);
+	ft_printf("my =   |%-12.8.5i||%12.-8.5i||%-12.-8.5i||%-12.-8.-5i|\n", 42, 42, 42, 42);
 
 	return (0);
 }
