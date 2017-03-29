@@ -36,7 +36,6 @@ void	ft_putstr(char const *s)
 		{
 			ft_putchar(*s);
 			s++;
-			g_res++;
 		}
 	}
 }
@@ -177,7 +176,6 @@ void	ft_putnstr(char const *s, int len)
 	{
 		ft_putchar(s[i]);
 		len--;
-		g_res++;
 	}
 }
 
@@ -268,22 +266,10 @@ uintmax_t	ft_spec_O(t_flist *list, va_list *ap)
 
 void	ft_write_number_u(t_flist *list, uintmax_t number, int len_arg)
 {
-	// if (len_arg)
-	// 	ft_put_nbr(number);
-	if (len_arg && number != 0)
+	if (number == 0 && g_pres == 0)
+		;
+	else if (len_arg) 
 		ft_putstr(list->res);
-	else if (number == 0)
-	{
-		if ((g_width == -1 && g_pres == 0) || (g_width == 0 && g_pres == -1) ||
-			(g_width == 0 && g_pres == 0))
-			write(1, "", 1);
-		else if (g_width > 0 && g_pres == 0)
-			ft_put_len_space(1, ' ');
-		else if (g_width == -1 && g_pres == -1)
-			ft_putstr(list->res);
-		else
-			ft_putstr(list->res);
-	}
 	if (g_width > -1)
 	{
 		if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
@@ -298,14 +284,6 @@ void	ft_write_number_u(t_flist *list, uintmax_t number, int len_arg)
 
 void	ft_sign_u(t_flist *list, uintmax_t number, int len_arg, int pres)
 {
-	// if (list->s || list->p)
-	// {
-	// 	// if (list->p && number >= 0)
-	// 	// 	ft_put_len_space(1, '+');
-	// 	if (list->s)
-	// 		ft_put_len_space(1, ' ');
-	// }
-
 	if (pres >= 0|| (pres < 0 && list->zo && g_width))
 	{
 		if (pres > len_arg)
@@ -333,8 +311,6 @@ void	ft_spec_u_U(t_flist *list, va_list *ap)
 	sign = (list->p || list->s) ? 1 : 0;
 	list->res = ft_itoa_base(number, 10);
 	len_arg = (number == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
-	// if (sign > 0)
-	// 	g_width--;
 	if (g_width > -1)
 	{
 		if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
@@ -357,10 +333,8 @@ void	ft_sign_x(t_flist *list, int len_arg, int pres, uintmax_t number)
 			ft_put_len_space(1, 'x');
 		else
 			ft_put_len_space(1, 'X');
-		// if (pres > 1)
-		// 	pres = pres - 2;
 	}
-    if (pres >= 0 || (pres < 0 && list->zo && g_width))
+	if (pres >= 0 || (pres < 0 && list->zo && g_width))
 	{
 		if (pres > len_arg)
 		{
@@ -368,7 +342,7 @@ void	ft_sign_x(t_flist *list, int len_arg, int pres, uintmax_t number)
 			pres = len_arg;
 		}
 		else if (g_pres < 0 && g_width > len_arg)
-        {
+		{
 			ft_put_len_space(g_width - len_arg, '0');
 			g_width = len_arg;
 		}
@@ -377,22 +351,10 @@ void	ft_sign_x(t_flist *list, int len_arg, int pres, uintmax_t number)
 
 void	ft_write_number_x(t_flist *list, int len_arg, uintmax_t number)
 {
-	// if (len_arg)
-	// 	ft_putstr(list->res);
-	if (len_arg && number != 0)
+	if (number == 0 && g_pres == 0)
+		;
+	else if (len_arg) 
 		ft_putstr(list->res);
-	else if (number == 0)
-	{
-		if ((g_width == -1 && g_pres == 0) || (g_width == 0 && g_pres == -1) ||
-			(g_width == 0 && g_pres == 0))
-			write(1, "", 1);
-		else if (g_width > 0 && g_pres == 0)
-			ft_put_len_space(1, ' ');
-		else if (g_width == -1 && g_pres == -1)
-			ft_putstr(list->res);
-		else
-			ft_putstr(list->res);
-	}
 	if (g_width > -1)
 	{
 		if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
@@ -407,16 +369,15 @@ void	ft_spec_x_X(t_flist *list, va_list *ap)
 {
 	uintmax_t	number;
 	int			len_arg;
-	int			pres;
 	int			sign;
 
-	pres = g_pres;
-	//number = (g_sr != 'X' ? ft_unsigned_size(list, ap) : ft_spec_X(list, ap));
 	number = ft_unsigned_size(list, ap);
 	list->res = ft_itoa_base(number, 16);
 	len_arg = (list->res == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
 	if (g_sr == 'x' || g_sr == 'X')
 	{
+		if (number == 0 && g_pres == 0)
+			len_arg = 0;
 		if (list->hs)
 			g_width = g_width - 2;
 		if (g_width > -1)
@@ -458,26 +419,10 @@ void	ft_sign_o(t_flist *list, int len_arg, int pres, uintmax_t number)
 
 void	ft_write_number_o(t_flist *list, int len_arg, uintmax_t number)
 {
-//	if (list->hs)
-//		ft_put_len_space(1, '0');
-	if (len_arg && number != 0)
+	if (number == 0 && g_pres == 0)
+		;
+	else if (len_arg) 
 		ft_putstr(list->res);
-	else if (number == 0)
-	{
-		if ((g_width == -1 && g_pres == 0) || (g_width == 0 && g_pres == -1) ||
-			(g_width == 0 && g_pres == 0))
-			write(1, "", 1);
-		else if (g_width > 0 && g_pres == 0)
-			ft_put_len_space(1, ' ');
-		else if (g_width == -1 && g_pres == -1)
-			ft_putstr(list->res);
-		// if (g_width == 0 && (g_pres == -1 || g_pres == 0) && list->d == 1)
-		// 	write(1, "", 1);
-		// if (list->d == 1)
-		// 	ft_put_len_space(g_width, ' ');
-		else
-			ft_putstr(list->res);
-	}
 	if (g_width > -1)
 		{
 			if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
@@ -486,8 +431,6 @@ void	ft_write_number_o(t_flist *list, int len_arg, uintmax_t number)
 				ft_put_len_space(g_width, ' ');
 			}
 		}
-	// if (number == 0 && g_pres == 0)
-	// 	list->res = ft_strnew(1);
 }
 
 void	ft_spec_o_O_x_X(t_flist *list, va_list *ap)
@@ -503,6 +446,10 @@ void	ft_spec_o_O_x_X(t_flist *list, va_list *ap)
 	len_arg = (list->res == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
 	if (g_sr == 'o' || g_sr == 'O')
 	{
+		if (number == 0 && g_pres == 0)
+			len_arg = 0;
+		if (list->hs && g_pres <= len_arg && number != 0)
+			g_width--;
 		if (g_width > -1)
 		{
 			if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
@@ -631,12 +578,14 @@ void	ft_wid_len(t_flist *list)
 	i = 0;
 	while (list->str[i])
 	{
-		if (list->str[i - 1] != '.' && list->str[i] >= 48 && list->str[i] < 58 && list->str[i] != '0')
+		if (list->str[i - 1] != '.' && list->str[i] >= 48 &&
+			list->str[i] < 58 && list->str[i] != '0')
 			g_width = ft_atoi_wl(list, &i);
 		else if (list->d == 1 && list->str[i] == '.')
 		{
 			i++;
-			g_pres = ((list->str[i] >= 48 && list->str[i] < 58) ? ft_atoi_wl(list, &i) : 0);		
+			g_pres = ((list->str[i] >= 48 && list->str[i] < 58) ?
+				ft_atoi_wl(list, &i) : 0);
 		}
 		i++;
 	}
@@ -795,7 +744,7 @@ void		ft_realise(const char *format, va_list *ap)
 		}
 		else
 			if (*end != '\0')
-				g_res++;
+				;
 		end++;
 	}
 	ft_putnstr(start, end - start);
@@ -820,103 +769,18 @@ int		ft_printf(const char *format, ...)
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 
 
-int main(void)
-{
-	// 	ft_printf("__________________spec o_____________________\n");
+// int main(void)
+// {
+	
+// 	// printf("====|$#6.2o|\t|$#-12.2o|\t|$#.3o|\t\t|$#09.2o|\t|$#02.2o|==========\n");
+// 	// printf("|orig = |%#6.2o|\t|%#-12.2o|\t|%#.3o|\t\t|%#09.2o|\t|%#02.2o|\n",8400,8400,0,8400,8400);
+// 	// ft_printf("|my =   |%#6.2o|\t|%#-12.2o|\t|%#.3o|\t\t|%#09.2o|\t|%#02.2o|\n",8400,8400,0,8400,8400);
+// 	// printf("\n");printf("\n");
 
-	// 	printf("---------------+ 20.8---------- 123456 -------------\n");
+// 	printf("====|$.U $.0U $0.U $0.0U|\t\t|$U $.2U $2.U $2.2U|==========\n");
+// 	printf("|orig = |%.U %.0U %0.U %0.0U|\t\t|%U %.2U %2.U %2.2U|\t\t\n",0,0,0,0,0,0,0,0);
+// 	ft_printf("|my =   |%.U %.0U %0.U %0.0U|\t\t|%U %.2U %2.U %2.2U|\t\t\n",0,0,0,0,0,0,0,0);
+// 	printf("\n");printf("\n");
 
-	// 	printf("O1 =%-+ 20.8o||\n", 123456);
-	// 	ft_printf("M1 =%-+ 20.8o||\n", 123456);
-
-	// 	printf("--------------- -#+ 20.8---------- -123456 -------------\n");
-
-	// 	printf("O11 =%-#+ 20.8o||\n", -123456);
-	// 	ft_printf("M11 =%-#+ 20.8o||\n", -123456);
-
-	// 	printf("--------+ #17.10----------------  123456--------------\n");
-
-	// 	printf("O2 =%-+ #17.10o||\n", 123456);
-	// 	ft_printf("M2 =%-+ #17.10o||\n", 123456);
-
-	// 	printf("-------------- - 0 #25.20--------------- -123456 ---------\n");
-
-	// 	printf("O3 =%- 0 #25.20o||\n", -123456);
-	// 	ft_printf("M3 =%- 0 #25.20o||\n", -123456);
-
-	// 	printf("----------#12-------------------- 123456-------\n");
-
-	// 	printf("O4 =%#12o||\n", 123456);
-	// 	ft_printf("M4 =%#12o||\n", 123456);
-
-	// 	printf("-------------#12.hh------------------ 123456------\n");
-
-	// 	printf("O5 =%#12.hho||\n", 123456);
-	// 	ft_printf("M5 =%#12.hho||\n", 123456);
-
-	// 	printf("-------#12.hh--------------- 0---------------\n");
-
-	// 	printf("O6 =%#12.0hho||\n", 0);
-	// 	ft_printf("M6 =%#12.0hho||\n", 0);
-
-	// 	printf("-------#12hh--------------- 0---------------\n");
-
-	// 	printf("O7 =%# 0 12.hho||\n", 1);
-	// 	ft_printf("M7 =%# 0 12.hho||\n", 1);
-
-	// 	printf("-------# 0 12hh--------------- 0---------------\n");
-
-	// 	printf("O8 =%# 0 12hho||\n", 0);
-	// 	ft_printf("M8 =%# 0 12hho||\n", 0);
-
-	// 	printf("-------# 0 12hh--------------- -6---------------\n");
-
-	// 	printf("O8_1 =%# 0 12hho||\n", -6);
-	// 	ft_printf("M8_1 =%# 0 12hho||\n", -6);
-
-	// 	printf("-------# 12hh--------------- 0---------------\n");
-
-	// 	printf("O9 =%# 12hho||\n", 0);
-	// 	ft_printf("M9 =%# 12hho||\n", 0);
-
-	// 	printf("-------# 12hh--------------- 1---------------\n");
-
-	// 	printf("O_10 =%# 12hho||\n", 1);
-	// 	ft_printf("M_10 =%# 12hho||\n", 1);
-
-	// 	printf("-------# 12hh--------------- 1---------------\n");
-
-	// 	printf("O_11 =%# 12hho||\n", 0);
-	// 	ft_printf("M_11 =%# 12hho||\n", 0);
-
-
-
-	// int nmb = 42;
-
-	// printf("===========|$-11-0u|\t|$-0+11u|\t|$11+u|\t|$-11+u|==========\n");
-	// printf("|orig = |%-11-0u|\t|%-0+11u|\t|%11+u|\t|%-11+u|\t|%0 u|\t\n",nmb,nmb,nmb,nmb,nmb);
-	// ft_printf("|my =   |%-11-0u|\t|%-0+11u|\t|%11+u|\t|%-11+u|\t|%0 u|\t\n",nmb,nmb,nmb,nmb,nmb);
-	// printf("\n");printf("\n");
-
-	// int nmb3 = 4294934528;
-
-	// printf("===========||$-11-0u|\t|$-0+11u|\t|$11+u|\t|$-11+u|\t|%0 u||==========\n");
-	// printf("|orig = |%-11-0u|\t|%-0+11u|\t|%11+u|\t|%-11+u|\t|%0 u|\t\n",nmb3,nmb3,nmb3,nmb3,nmb3);
-	// ft_printf("|my =   |%-11-0u|\t|%-0+11u|\t|%11+u|\t|%-11+u|\t|%0 u|\t\n",nmb3,nmb3,nmb3,nmb3,nmb3);
-	// printf("\n");printf("\n");
-	// int nmb1 = 42;
-
-	// printf("===========|$-11-0U|\t|$-0+11U|\t|$11+U|\t|$-11+U|\t|$0 U|==========\n");
-	// printf("|orig = |%-11-0U|\t|%-0+11U|\t|%11+U|\t|%-11+U|\t|%0 U|\t\n",nmb1,nmb1,nmb1,nmb1,nmb1);
-	// ft_printf("|my =   |%-11-0u|\t|%-0+11u|\t|%11+u|\t|%-11+u|\t|%0 u|\t\n",nmb1,nmb1,nmb1,nmb1,nmb1);
-	// printf("\n");printf("\n");
-	// int nmb2 = 4294934528;
-
-	printf("====|#.u #.0u #0.u #0.0u|\t\t|#u #.2u #2.u #2.2u|==========\n");
-	printf("|orig = |%.u|%.0u|%0.u|%0.0u|\t\t|%u|%.2u|%2.u|%2.2u|\t\t\t\t\n",0,0,0,0,0,0,0,0);
-	ft_printf("|my =   |%.u|%.0u|%0.u|%0.0u|\t\t|%u|%.2u|%2.u|%2.2u|\t\t\t\t\n",0,0,0,0,0,0,0,0);
-	printf("\n");printf("\n");
-
-
-	return (0);
-}
+// 	return (0);
+// }
