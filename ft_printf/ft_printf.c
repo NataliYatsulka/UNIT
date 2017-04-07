@@ -452,16 +452,21 @@ void	ft_spec_x_X(t_flist *list, va_list *ap)
 	{
 		arg = va_arg(*ap, void *);
 		list->res = ft_itoa_base((unsigned long int)arg, 16);
+		if (!arg && g_pres == 0)
+			len_arg = 0;
+		else
+			len_arg = (int)ft_strlen(list->res);
 		list->hs = 1;
 	}
 	else
 	{
 		number = ft_unsigned_size(list, ap);
 		list->res = ft_itoa_base(number, 16);
+		len_arg = (int)ft_strlen(list->res);
+		if (number == 0 && g_pres == 0)
+			len_arg = 0;
 	}
-	len_arg = (list->res == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
-	if (number == 0 && g_pres == 0)
-		len_arg = 0;
+	// len_arg = (list->res == 0 && g_pres == 0) ? 0 : (int)ft_strlen(list->res);
 	if (list->hs && number != 0)
 		g_width = g_width - 2;
 	if (g_width > -1)
@@ -655,48 +660,11 @@ char	*ft_conw_char(wchar_t arg)
 	return (s);
 }
 
-// void	ft_write_number_c(t_flist *list, int len_arg)
-// {
-// 	if (len_arg)
-// 	{
-// 		ft_putchar(*(list->res));
-// 	}
-// 	if (g_width > -1)
-// 	{
-// 		if ((list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0)) || (list->m && g_pres > 0))
-// 		{
-// 			g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
-// 			ft_put_len_space(g_width, ' ');
-// 		}
-// 	}
-// }
-
-// void	ft_sign_c(t_flist *list, int len_arg, int pres)
-// {
-// 	if (list->s || list->p)
-// 			ft_put_len_space(1, ' ');
-// 	if (pres >= 0|| (pres < 0 && list->zo && g_width))
-// 	{
-// 		if (pres > len_arg)
-// 		{
-// 			ft_put_len_space(pres - len_arg, '0');
-// 			pres = len_arg;
-// 		}
-// 		else if (g_pres < 0 && g_width > len_arg)
-// 		{
-// 			ft_put_len_space(g_width - len_arg, '0');
-// 			g_width = len_arg;
-// 		}
-// 	}
-// }
-
 void	ft_spec_c_C(t_flist *list, va_list *ap)
 {
 	void	*arg;
 	int		len_arg;
 	int		j;
-	// int		sign;
-	// int		pres;
 	int		space;
 
 	space = 0;
@@ -708,38 +676,15 @@ void	ft_spec_c_C(t_flist *list, va_list *ap)
 		list->res = ft_strnew(1);
 		list->res[0] = (char)arg;
 	}
-	len_arg = (int)ft_strlen(list->res);
+	len_arg = 1;
 	j = len_arg;
-
-	// pres = g_pres;
-	// sign = ((list->p || list->s) ? 1 : 0);
-	// if (sign > 0)
-	// 	g_width--;
-	// if (g_width > -1)
-	// {
-	// 	space = g_width - len_arg;
-	// 	ft_put_len_space(space, ' ');
-	// 	// if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
-	// 	// {
-	// 	// 	g_width = g_width - ((g_pres > len_arg) ? g_pres : len_arg);
-	// 	// 	ft_put_len_space(g_width, ' ');
-	// 	// }
-	// }
-	// ft_sign_c(list, len_arg, pres);
-	// ft_write_number_c(list, len_arg);
-	// free(list->res);
-
-	if ((list->p || list->s) && g_width != -1)
-		g_width--;
-
 	if (list->m == 0 && g_width > 0)
 	{
-		ft_put_len_space(g_width - len_arg, ' ');
-		g_width = g_width - len_arg;
+		if (list->zo)
+			ft_put_len_space(g_width - len_arg, '0');
+		else
+			ft_put_len_space(g_width - len_arg, ' ');
 	}
-	if ((list->s || list->p) && g_width != -1)
-			ft_put_len_space(1, ' ');
-	
 	if (list->res[0])
 	{
 		while (j && *(list->res))
@@ -748,9 +693,8 @@ void	ft_spec_c_C(t_flist *list, va_list *ap)
 			j--;
 		}
 	}
-
-	if (g_pres <= g_width || (list->m && g_pres > 0))
-		(g_width - len_arg) > 0 ? ft_put_len_space(g_width - len_arg, ' ') : ft_put_len_space(0, ' ');
+	if (list->m == 1 && g_width > 0)
+		ft_put_len_space(g_width - len_arg, ' ');
 	ft_strdel(&(list->res));
 }
 
@@ -829,24 +773,21 @@ void	ft_spec_s_S(t_flist *list, va_list *ap)
 		ft_put_len_space(g_width, ' ');
 	else
 	{
-
-		if ((list->s || list->p) && g_width >= g_pres)
-			g_width--;
 		if (g_width > -1)
 		{
-			if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
+			if (list->m == 0) //&& ((list->zo && g_pres >= 0) || list->zo == 0))
 			{
-				g_width = g_width - g_pres;
-				if (list->zo == 0)
-					ft_put_len_space(g_width, ' ');
-				else
+				//if (g_pres >= 0)
+				g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+				if (list->zo)
 					ft_put_len_space(g_width, '0');
+				else
+					ft_put_len_space(g_width, ' ');
 
 			}
 		}
-
-		if (((list->s || list->p) && list->m == 0) && g_width > g_pres)
-				ft_put_len_space(1, ' ');
+		// if (((list->s || list->p) && list->m == 0) && g_width > g_pres)
+		// 		ft_put_len_space(1, ' ');
 		if (g_pres >= 0|| (g_pres < 0 && list->zo && g_width))
 		{
 			if (g_pres > len_arg)
@@ -860,40 +801,42 @@ void	ft_spec_s_S(t_flist *list, va_list *ap)
 				g_width = len_arg;
 			}
 		}
-		if (len_arg && (g_pres || g_width))
+		if (len_arg && g_pres >= 0) //|| g_width))
 		{
-			if (g_pres > 0)
+			while (pres > 0 && *(list->res))
 			{
-				while (pres > 0 && *(list->res))
-				{
-					ft_putchar(*(list->res));
-					pres--;
-					list->res++;
-				}
+				ft_putchar(*(list->res));
+				pres--;
+				list->res++;
 			}
-			else if (g_width > 0)
-			{
-				j = g_width;
-				while (j > 0 && *(list->res))
-					{
-						ft_putchar(*(list->res));
-						j--;
-						list->res++;
-						k++;
-					}	
-			}
-
-
+			// if (g_pres > 0)
+			// {
+			// 	while (pres > 0 && *(list->res))
+			// 	{
+			// 		ft_putchar(*(list->res));
+			// 		pres--;
+			// 		list->res++;
+			// 	}
+			// }
+			// else if (g_width > 0)
+			// {
+			// 	j = g_width;
+			// 	while (j > 0 && *(list->res))
+			// 	{
+			// 		ft_putchar(*(list->res));
+			// 		j--;
+			// 		list->res++;
+			// 		k++;
+			// 	}	
+			// }
 		}
-		// else if (len_arg && g_pres == -1 && g_width)
-		// {
-		// 	while (g_width > 0 && *(list->res))
-		// 	{
-		// 		ft_putchar(*(list->res));
-		// 		g_width--;
-		// 		list->res++;
-		// 	}
-		// }
+		else
+			while (*(list->res))
+			{
+				ft_putchar(*(list->res));
+				list->res++;
+				k++;
+			}
 		g_width = g_width - k;
 		if (g_width > -1)
 		{
@@ -1194,79 +1137,83 @@ int		ft_printf(const char *format, ...)
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+/*
+
+int main(void)
+{
+
+
+	const char A[] = "this is tEEEEst!";
+
+	printf("====||$05.3s|\t\t|$+3.5s|\t|$-7s|\t|$07.3s|==========\n");
+	printf("|orig = ||%5.3s|\t\t|%3.5s|\t|%7s|\t|%7.3s|\n",A, A,A,NULL);
+	ft_printf("|my =   ||%5.3s|\t\t|%3.5s|\t|%7s|\t|%7.3s|",A, A,A,NULL);
+	printf("\n");printf("\n");
 
 
 
+	printf("====|$$m|   |$yyyy$|   |$6t$|   |$-t$|   |$+9tt$|==========\n");
+	printf("|orig = |%%m|   |%yyyy%|   |%6t%|   |%-t%|   |%+9tt%|\n");
+	ft_printf("|my =   |%%m|   |%yyyy%|   |%6t%|   |%-t%|   |%+9tt%|\n");
+	printf("\n");printf("\n");
 
-// int main(void)
-// {
+	printf("====|$-6$|   |$6$|   |$6.2$|   |$-06$|   |$-06.3$|==========\n");
+	printf("|orig = |%-6%|   |%6%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
+	ft_printf("|my =   |%-6%|   |%6%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
+	printf("\n");printf("\n");
 
-// 	printf("====|$$m|   |$yyyy$|   |$6t$|   |$-t$|   |$+9tt$|==========\n");
-// 	printf("|orig = |%%m|   |%yyyy%|   |%6t%|   |%-t%|   |%+9tt%|\n");
-// 	ft_printf("|my =   |%%m|   |%yyyy%|   |%6t%|   |%-t%|   |%+9tt%|\n");
-// 	printf("\n");printf("\n");
+	printf("====|$-6m$|   |$6yyya$|   |$6.2$|   |$-06$|   |$-06.3%|==========\n");
+	printf("|orig = |%-6m%|   |%6yyya%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
+	ft_printf("|my =   |%-6m%|   |%6yyya%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
+	printf("\n");printf("\n");
 
-// 	printf("====|$-6$|   |$6$|   |$6.2$|   |$-06$|   |$-06.3$|==========\n");
-// 	printf("|orig = |%-6%|   |%6%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
-// 	ft_printf("|my =   |%-6%|   |%6%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
-// 	printf("\n");printf("\n");
+	printf("====|#-6#m|   |#6##yyya#|   |#z6.2#|   |#-06r#|   |#-06.3t#|==========\n");
+	printf("|orig = |%-6%m|   |%6%%yyya%|   |%z6.2%|   |%-06r%|   |%-06.3t%|\n");
+	ft_printf("|my =   |%-6%m|   |%6%%yyya%|   |%z6.2%|   |%-06r%|   |%-06.3t%|\n");
+	printf("\n");printf("\n");
 
-// 	//printf("====|$-6m$|   |$6yyya$|   |$6.2$|   |$-06$|   |$-06.3%|==========\n");
-// 	printf("|orig = |%-6m%|   |%6yyya%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
-// 	ft_printf("|my =   |%-6m%|   |%6yyya%|   |%6.2%|   |%-06%|   |%-06.3%|\n");
-// 	printf("\n");printf("\n");
-
-// 	printf("====|#-6#m|   |#6##yyya#|   |#z6.2#|   |#-06r#|   |#-06.3t#|==========\n");
-// 	printf("|orig = |%-6%m|   |%6%%yyya%|   |%z6.2%|   |%-06r%|   |%-06.3t%|\n");
-// 	ft_printf("|my =   |%-6%m|   |%6%%yyya%|   |%z6.2%|   |%-06r%|   |%-06.3t%|\n");
-// 	printf("\n");printf("\n");
-
-// 	printf("====|$-6.12$m|   |$06$$yyya$|   |$ z6.2$|   |$+-06r$|   |$ 0 +-06.3t$|==========\n");
-// 	printf("|orig = |%-6.12%m|   |%06%%yyya%|   |% z6.2%|   |%+-06r%|   |% 0 +-06.3t%|\n");
-// 	ft_printf("|my =   |%-6.12%m|   |%06%%yyya%|   |% z6.2%|   |%+-06r%|   |% 0 +-06.3t%|\n");
-// 	printf("\n");printf("\n");
-
-
-// 	// printf("====|$#.x $#.0x $#0.x $#0.0x|\t\t|$#x |$#.2x |$#2.x |$#2.2x|\t\t\t\t|==========\n");
-// 	// printf("|orig = |%#.x %#.0x %#0.x %#0.0x|\t\t|%#x |%#.2x |%#2.x |%#2.2x|\t\t\t\t|\n",0,0,0,0,0,0,0,0);
-// 	// ft_printf("|my =   |%#.x %#.0x %#0.x %#0.0x|\t\t|%#x |%#.2x |%#2.x |%#2.2x|\t\t\t\t|\n",0,0,0,0,0,0,0,0);
-// 	// printf("\n");printf("\n");
-// 	// char	*s;
-// 	// char a = 'a';
-
-
-//  	//s[] = "this is tEEEEst!";
-// // //	printf("%%|%0-20%|%+3%|%#4.2%|%-20  9.3yasa |%|\n");
-// // 	printf("====|$-2.3c|($3d)\t|$-2.5c|($3d)\t|$-2.0c|($3d)", a, a, a+5,a+5,a+10,a+10|==========\n");
-
-// 	// printf("%z19ls||%  60 s||%+3s||%#4.12s||%-20  9.3yasa |%|\n",s, s, s, s);
-// 	// ft_printf("%%|%-20%|%+3%|%#4.2%|%-20  9.3yasa |%|\n");
+	printf("====|$-6.12$m|   |$06$$yyya$|   |$ z6.2$|   |$+-06r$|   |$ 0 +-06.3t$|==========\n");
+	printf("|orig = |%-6.12%m|   |%06%%yyya%|   |% z6.2%|   |%+-06r%|   |% 0 +-06.3t%|\n");
+	ft_printf("|my =   |%-6.12%m|   |%06%%yyya%|   |% z6.2%|   |%+-06r%|   |% 0 +-06.3t%|\n");
+	printf("\n");printf("\n");
 
 
 
-// 	// const char A[] = "this is tEEEEst!";
-//  //    printf("====|$-07.5s|\t|$-02.5s|\t|$-020s|\t|$-0.5s|==========\n");
-//  //   	printf("|orig = |%-07.5s|\t|%-02.5s|\t|%-020s|\t|%-0.5s|\n", A, A,A, "");
-//  //   	ft_printf("|my =   |%-07.5s|\t|%-02.5s|\t|%-020s|\t|%-0.5s|\n", A, A,A,"");
-//  //   	printf("\n");printf("\n");
-// 	// char *ptr_c = (char*)malloc(sizeof(char));
-// 	// int ptr_i = 43;
-// 	// long ptr_l = 874748;
+	// char	*s;
+	// char a = 'a';
 
-//  // 	printf("===============|$.0p||$6p|\t|$6.p||$.20p|==========\n");
-//  //   	printf("|orig = |%.0p||%6p|\t|%6.p||%.20p|\n", NULL,NULL,NULL,NULL);
-//  //   	ft_printf("|my =   |%.0p||%6p|\t|%6.p||%.20p|\n", NULL,NULL,NULL,NULL);
-//  //   	printf("\n");printf("\n");
 
-//  //   	printf("===============|$12p||$17p|\t|$-22p|==========\n");
-//  //   	printf("|orig = |%12p||%17p|\t|%-22p|\n", ptr_c, &ptr_i, &ptr_l);
-//  //   	ft_printf("|my =   |%12p||%17p|\t|%-22p|\n", ptr_c, &ptr_i, &ptr_l);
-//  //   	printf("\n");printf("\n");
-   	
-//  //   	printf("===============|$.0p||$6p|\t|$6.p||$.20p|==========\n");
-//  //   	printf("|orig = |%.0p||%6p|\t|%6.p||%.20p|\n", &ptr_l, &ptr_l, &ptr_l,&ptr_l);
-//  //   	ft_printf("|my =   |%.0p||%6p|\t|%6.p||%.20p|\n", &ptr_l, &ptr_l, &ptr_l,&ptr_l);
-//  //   	printf("\n");printf("\n");
+ 	//s[] = "this is tEEEEst!";
+// //	printf("%%|%0-20%|%+3%|%#4.2%|%-20  9.3yasa |%|\n");
+// 	printf("====|$-2.3c|($3d)\t|$-2.5c|($3d)\t|$-2.0c|($3d)", a, a, a+5,a+5,a+10,a+10|==========\n");
 
-// 	return (0);
-// }
+	// printf("%z19ls||%  60 s||%+3s||%#4.12s||%-20  9.3yasa |%|\n",s, s, s, s);
+	// ft_printf("%%|%-20%|%+3%|%#4.2%|%-20  9.3yasa |%|\n");
+
+
+
+	// PRINTF("|%-+2c|(%3d)\t|%-3c|(%3d)\t|%4c|(%3d)", a, a, a+5,a+5,a+10,a+10);
+	// PRINTF("|%+-2.3c|(%3d)\t|%-2.0c|(%3d)\t|%-2.1c|(%3d)", a, a, a+5,a+5,a+10,a+10);
+	// PRINTF("|%0+3c|(%3d)\t|%+3c|(%3d)\t|%+c|(%3d)", a, a, a+5, a+5, a+10, a+10);
+	// PRINTF("|%3.4c|(%3d)\t|%+3.4c|(%3d)\t|%7.4c|(%3d)", a, a, a+5, a+5, a+10, a+10);
+
+	// PRINTF("|%-3w|(%3w)\t|%3Z|(%3Z)\t|%Q|(%3Q)");
+	// PRINTF("|%3h|\t|%3l|\t|%3hhll|\t|%3llhhllQ|\t|%3z|\t|%3j|\t|%3J|");
+	// PRINTF("|%-3c|\t|%3c|\t|%c|\t|%-03c|\t|%03c|\t|%.c|\t|%.5c|\t|%.C|\t|%.5C|", 0,0,0,0,0,0,0,0,0);
+
+
+	printf("====|$S|\t|$S|\t|$C|\t|$S|  Wide sample string.., 米, 米==========\n");
+	printf("|orig = |%S|\t|%S|\t|%C|\t|%S|\n",L"Wide sample string..",L"米",L'米',L"");
+	ft_printf("|my =   |%S|\t|%S|\t|%C|\t|%S|\n",L"Wide sample string..",L"米",L'米',L"");
+	printf("\n");printf("\n");
+
+
+	printf("====|$S|  |$S|\t|$S|,Lবিড়াল এবং খাওয়া তিমি ঘুঘু, 合気道,ድመቶች ሰዎ አልወደውም|==========\n");
+	printf("|orig = ||%S|  |%S|\t|%S|\n",L"বিড়াল এবং খাওয়া তিমি ঘুঘু", L"合気道",L"ድመቶች ሰዎች አልወደውም.");
+	ft_printf("|my =   ||%S|  |%S|\t|%S|\n",L"বিড়াল এবং খাওয়া তিমি ঘুঘু", L"合気道",L"ድመቶች ሰዎች አልወደውም.");
+	printf("\n");printf("\n");
+
+
+	return (0);
+}
+*/
