@@ -12,14 +12,6 @@
 
 #ifndef LIBFTPRINTF_H
 # define LIBFTPRINTF_H
-
-// # define DEC_BASE "0123456789"
-// # define OCT_BASE "01234567"
-// # define BIN_BASE "01"
-// # define HEX_BASE "0123456789abcdef"
-// # define HEXL_BASE "0123456789ABCDEF"
-// # define MIN(a, b) (a < b ? a : b)
-
 # include "libft/libft.h"
 # include <stdio.h>
 # include <stdarg.h>
@@ -52,9 +44,5 @@ typedef struct		s_flist
 }					t_flist;
 
 int		ft_printf(const char *format, ...);
-
-// int					main(void);
-// int					ft_printf(const char *format, ...);
-// void					ft_realise(const char *format, va_list *ap);
 
 #endif
