@@ -15,7 +15,9 @@
 #include <unistd.h>
 #include <stdarg.h>
 
+
 #include <limits.h>
+#include <locale.h>
 
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
 //_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
@@ -665,17 +667,23 @@ void	ft_spec_c_C(t_flist *list, va_list *ap)
 	int		len_arg;
 	int		j;
 	int		space;
+	int 	i;
 
 	space = 0;
+	i = 0;
 	arg = va_arg(*ap, void *);
+	len_arg = 1;
 	if (g_sr == 'C' || (g_sr == 'c' && list->l == 1))
+	{
 		list->res = ft_conw_char((wchar_t)arg);
+		len_arg = ft_strlen(list->res);
+	}
 	else
 	{
 		list->res = ft_strnew(1);
 		list->res[0] = (char)arg;
 	}
-	len_arg = 1;
+
 	j = len_arg;
 	if (list->m == 0 && g_width > 0)
 	{
@@ -686,10 +694,13 @@ void	ft_spec_c_C(t_flist *list, va_list *ap)
 	}
 	if (list->res[0])
 	{
-		while (j && *(list->res))
+		while (j && list->res[i])
 		{
-			ft_putchar(*(list->res));
+			// ft_putchar(*(list->res));
+			// j--;
+			ft_putchar(list->res[i]);
 			j--;
+			i++;
 		}
 	}
 	if (list->m == 1 && g_width > 0)
@@ -772,39 +783,80 @@ void	ft_spec_s_S(t_flist *list, va_list *ap)
 		ft_put_len_space(g_width, ' ');
 	else
 	{
+
 		if (g_width > -1)
 		{
-			if (list->m == 0) //&& ((list->zo && g_pres >= 0) || list->zo == 0))
+			if (list->m == 0) // && ((list->zo && g_pres >= 0) || list->zo == 0))
 			{
-				//if (g_pres >= 0)
-				g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+
+
+				if (g_pres >= 0)
+					g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+				else if (g_width > g_pres || g_width > len_arg)
+					g_width = g_width - ((g_pres >= 0) ? g_pres : len_arg);
 				if (list->zo)
 					ft_put_len_space(g_width, '0');
 				else
 					ft_put_len_space(g_width, ' ');
 
+
+				// if (g_pres >= 0)
+				// {
+				// 	g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+				// 	if (list->zo)
+				// 		ft_put_len_space(g_width, '0');
+				// 	else
+				// 		ft_put_len_space(g_width, ' ');
+				// }
+				// else if (g_width > g_pres || g_width > len_arg)
+				// {
+				// 	g_width = g_width - ((g_pres >= 0) ? g_pres : len_arg);
+				// 	if (list->zo)
+				// 		ft_put_len_space(g_width, '0');
+				// 	else
+				// 		ft_put_len_space(g_width, ' ');
+				// }
 			}
 		}
+
+
+
+
+
+		// if (g_width > -1)
+		// {
+		// 	if (list->m == 0 && ((list->zo && g_pres >= 0) || list->zo == 0))
+		// 	{
+		// 		//if (g_pres >= 0)
+		// 		g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+		// 		if (list->zo)
+		// 			ft_put_len_space(g_width, '0');
+		// 		else
+		// 			ft_put_len_space(g_width, ' ');
+
+		// 	}
+		// }
+
 		// if (((list->s || list->p) && list->m == 0) && g_width > g_pres)
 		// 		ft_put_len_space(1, ' ');
-		if (g_pres >= 0|| (g_pres < 0 && list->zo && g_width))
-		{
-			if (g_pres > len_arg)
-			{
-				ft_put_len_space(g_pres - len_arg, '0');
-				g_pres = len_arg;
-			}
-			else if (g_pres < 0 && g_width > len_arg)
-			{
-				ft_put_len_space(g_width - len_arg, '0');
-				g_width = len_arg;
-			}
-		}
+		// if (g_pres >= 0 || (g_pres < 0 && list->zo && g_width))
+		// {
+		// 	if (g_pres > len_arg)
+		// 	{
+		// 		ft_put_len_space(g_pres - len_arg, '0');
+		// 		g_pres = len_arg;
+		// 	}
+		// 	else if (g_pres < 0 && g_width > len_arg)
+		// 	{
+		// 		ft_put_len_space(g_width - len_arg, '0');
+		// 		g_width = len_arg;
+		// 	}
+		// }
 		if (len_arg && g_pres >= 0) //|| g_width))
 		{
 			while (pres > 0 && *(list->res))
 			{
-				ft_putchar(*(list->res));
+				ft_putchar(*(list->res)); // для  strdel iтреба
 				pres--;
 				list->res++;
 			}
@@ -836,14 +888,32 @@ void	ft_spec_s_S(t_flist *list, va_list *ap)
 				list->res++;
 				k++;
 			}
-		g_width = g_width - k;
-		if (g_width > -1)
+		//g_width = g_width - k;
+		if (g_width > -1 && list->m == 1)
 		{
-			if (list->m == 1 && ((list->zo && g_pres >= 0) || list->zo == 0))
-			{
-				g_width = g_width - ((g_pres != -1) ? g_pres : 0);
-				ft_put_len_space(g_width, ' ');
-			}
+
+
+			if (g_pres >= 0)
+				g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+			else if (g_width > g_pres || g_width > len_arg)
+				g_width = g_width - ((g_pres >= 0) ? g_pres : len_arg);
+			ft_put_len_space(g_width, ' ');
+			// if (list->m == 1)
+			// {
+			// 	if (g_pres >= 0)
+			// 	{
+			// 		g_width = g_width - ((g_pres > len_arg) ? len_arg : g_pres);
+			// 		if (list->zo)
+			// 			ft_put_len_space(g_width, '0');
+			// 		else
+			// 			ft_put_len_space(g_width, ' ');
+			// 	}
+			// 	else
+			// 	{
+			// 		g_width = g_width - len_arg;
+			// 		ft_put_len_space(g_width, ' ');
+			// 	}
+			// }
 		}
 	}
 }
@@ -1147,9 +1217,9 @@ int main(void)
 
 	// const char A[] = "this is tEEEEst!";
 
-	// printf("====||$-05.3 76 .9s|\t\t|$+3.5s|\t|$-7s|\t|$07.3s|==========\n");
-	// printf("|orig = ||%-05.3 7 .8s|\t\t|%+3.5s|\t|%-7s|\t|%07.3s|\n",A, A,A,NULL);
-	// ft_printf("|my =   ||%-05.3 7 .8s|\t\t|%+3.5s|\t|%-7s|\t|%07.3s|",A, A,A,NULL);
+	// printf("====|#5.3s|\t\t|#3.5s|\t|#7s|\t|#7.3s|==========\n");
+	// printf("|orig = ||%5.3s|\t\t|%3.5s|\t|%7s|\t|%7.3s|\n",A, A,A,NULL);
+	// ft_printf("|my =   ||%5.3s|\t\t|%3.5s|\t|%7s|\t|%7.3s|\n",A, A,A,NULL);
 	// printf("\n");printf("\n");
 
 
@@ -1202,18 +1272,21 @@ int main(void)
 	// PRINTF("|%-3w|(%3w)\t|%3Z|(%3Z)\t|%Q|(%3Q)");
 	// PRINTF("|%3h|\t|%3l|\t|%3hhll|\t|%3llhhllQ|\t|%3z|\t|%3j|\t|%3J|");
 	// PRINTF("|%-3c|\t|%3c|\t|%c|\t|%-03c|\t|%03c|\t|%.c|\t|%.5c|\t|%.C|\t|%.5C|", 0,0,0,0,0,0,0,0,0);
+	setlocale(LC_CTYPE, "");
 
+	const wchar_t B[] = L"ድመቶች ሰዎች አልወደውም.";
 
-	printf("====|$S|\t|$S|\t|$C|\t|$S|  Wide sample string.., 米, 米==========\n");
-	printf("|orig = |%S|\t|%S|\t|%C|\t|%S|\n",L"Wide sample string..",L"米",L'米',L"");
-	ft_printf("|my =   |%S|\t|%S|\t|%C|\t|%S|\n",L"Wide sample string..",L"米",L'米',L"");
+	fflush(stdout);
+	printf("====|#-7.5S|\t|#-2.5S|\t|#-.10S|\t\t|#-.5S|==========\n");
+	fflush(stdout);
+
+	printf("|orig = |%-7.5S|\t|%-2.5S|\t|%-.10S|\t\t|%-.5S|\n", B,B,B, L"");
+	fflush(stdout);
+
+	ft_printf("|my =   |%-7.5S|\t|%-2.5S|\t|%-.10S|\t\t|%-.5S|\n", B,B,B, L"");
 	printf("\n");printf("\n");
 
 	
-	printf("|##6.7d|\t|##-12.7d|\t|##.7d|\t|##09.7d|\t|##02.7d|\n");
-	printf("|orig = |%#6.7d|\t|%#-12.7d|\t|%#.7d|\t|%#09.7d|\t|%#02.7d|\n", 8400,8400,0,8400,8400);
-	ft_printf("|my =   |%#6.7d|\t|%#-12.7d|\t|%#.7d|\t|%#09.7d|\t|%#02.7d|\n", 8400,8400,0,8400,8400);
-	printf("\n");printf("\n");
 
 	return (0);
 }
