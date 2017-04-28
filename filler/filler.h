@@ -18,7 +18,8 @@
 typedef struct 	s_filler
 {
 	char		sgn;
-	int			i;
+	int			len_map_x;
+	int			len_map_y;
 }				t_filler;
 
 int				main(void);

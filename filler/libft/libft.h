@@ -44,12 +44,13 @@
 **		*res        рядок з обробленими флагами
 */
 
-char				g_sr;
-int					g_width;
-int					g_pres;
-int					g_count_pres;
-int					g_count_arg;
-int					g_res;
+//витерти потім слово extern
+extern char			g_sr;
+extern int			g_width;
+extern int			g_pres;
+extern int			g_count_pres;
+extern int			g_count_arg;
+extern int			g_res;
 
 typedef struct		s_flist
 {

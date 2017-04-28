@@ -12,6 +12,14 @@
 
 #include "libft.h"
 
+//витерти потім цей блок змінних
+char				g_sr;
+int					g_width;
+int					g_pres;
+int					g_count_pres;
+int					g_count_arg;
+int					g_res;
+
 void	ft_find_last_g_sr(char *tmp, char *s1, char *s2)
 {
 	int		i;
