@@ -20,6 +20,13 @@ typedef struct 	s_filler
 	char		sgn;
 	int			len_map_x;
 	int			len_map_y;
+	int			xx;
+	int			xy;
+	int			ox;
+	int			oy;
+	int			t_x;
+	int			t_y;
+	char		**tkn;
 }				t_filler;
 
 int				main(void);
