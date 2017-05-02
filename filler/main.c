@@ -14,24 +14,57 @@
 
 #define WHERE_READ 3 //0=з консолі, 3=зфайлу
 
-void	malloc_for_two_mas(char **s, int x, int y)//libft plus
+// void	malloc_for_two_mas(char **s, int x, int y)//libft plus
+// {
+// 	int		i;
+
+// 	i = -1;
+// 	if (!(s = (char **)ft_memalloc((y + 1) * sizeof(char *))))// y+1????
+// 		return ;
+// 	while (++i < x)
+// 	{
+// 		s[i] = ft_strnew(y);
+// 		if (!s[i])
+// 			return ;
+// 	}
+// }
+
+void	mas_malloc(t_filler *f, int x, int y)
 {
 	int		i;
 
 	i = -1;
-	if (!(s = (char **)ft_memalloc((y + 1) * sizeof(char *))))// y+1????
+	if (!(f->tkn = (char **)ft_memalloc((y + 1) * sizeof(char *))))
 		return ;
 	while (++i < x)
 	{
-		s[i] = ft_strnew(y);
-		if (!s[i])
+		f->tkn[i] = ft_strnew(y);
+		if (!f->tkn[i])
 			return ;
 	}
 }
 
 void	place_token(t_filler *f, char *line)
 {
-	write(1, "No\n", 3);
+	int		i;
+	int		j;
+
+	i = -1;
+	while (++i < f->t_x)
+	{
+		f->tkn[i] = line;
+		get_next_line(WHERE_READ, &line);
+	}
+	i = -1;
+	while (++i < f->t_x)
+	{
+		j = -1;
+		while (++j < f->t_y)
+		{
+			if (f->tkn[i][j] == '*')
+				f->tkn[i][j] = f->sgn;
+		}
+	}
 }
 
 void	read_token_num(t_filler *f, char *line)
@@ -45,10 +78,10 @@ void	read_token_num(t_filler *f, char *line)
 	while (line[j] && (line[j] >= 48 && line[j] <= 57))
 		j++;
 	f->t_y = ft_atoi(&line[j]);
-	malloc_for_two_mas(f->tkn, f->t_x, f->t_y);
+	ft_strdel(&line);
+	mas_malloc(f, f->t_x, f->t_y);
 	while (get_next_line(WHERE_READ, &line))
 		place_token(f, line);
-	write(1, "token\n", 6);
 }
 
 void	read_numb_max_xy(t_filler *f, char *line)
@@ -62,6 +95,20 @@ void	read_numb_max_xy(t_filler *f, char *line)
 	while (line[j] && (line[j] >= 48 && line[j] <= 57))
 		j++;
 	f->len_map_y = ft_atoi(&line[j]);
+}
+
+void	put_coord_xo(t_filler *f, char *line, int i, int j)
+{
+	if (line[j] == 'X')
+	{
+		f->xx = i;
+		f->xy = j - 3;
+	}
+	else if (line[j] == 'O')
+	{
+		f->ox = i;
+		f->oy = j - 3;
+	}
 }
 
 char	*read_plato(t_filler *f, char *line)
@@ -82,16 +129,7 @@ char	*read_plato(t_filler *f, char *line)
 		while (line[j] && line[j] != 'P' && ((line[j] >= 48 && line[j] <= 57) ||
 			line[j] == '.' || line[j] == ' '))
 			j++;
-		if (line[j] == 'X')
-		{
-			f->xx = i;
-			f->xy = j - 3;
-		}
-		else if (line[j] == 'O')
-		{
-			f->ox = i;
-			f->oy = j - 3;
-		}
+		put_coord_xo(f, line, i, j);
 		if (line[j] != 'P')
 			ft_strdel(&line);
 		else
@@ -131,13 +169,14 @@ int		main(void)
 		//leak line перепресвоюється????
 		line = read_plato(f, line);
 		read_token_num(f, line);
-		write(1, "1\n", 2);
+		// put_tkn_on_map_algo(f);
+		write(1, "main\n", 5);
 	}
 	//ft_strdel(&line);
 	printf("end of program\n");
 	return (0);
-#if WHERE_READ == 3
-	close(3);
-#endif
+	#if WHERE_READ == 3
+		close(3);
+	#endif
 	return (0);
 }
