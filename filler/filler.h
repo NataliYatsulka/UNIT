@@ -27,6 +27,7 @@ typedef struct 	s_filler
 	int			t_x;
 	int			t_y;
 	char		**tkn;
+	char		**map;
 }				t_filler;
 
 int				main(void);

@@ -29,6 +29,11 @@
 // 	}
 // }
 
+// void	algo(t_filler *f)
+// {
+// 	while (f->)
+// }
+
 void	mas_malloc(t_filler *f, int x, int y)
 {
 	int		i;
@@ -40,6 +45,21 @@ void	mas_malloc(t_filler *f, int x, int y)
 	{
 		f->tkn[i] = ft_strnew(y);
 		if (!f->tkn[i])
+			return ;
+	}
+}
+
+void	mas_malloc_map(t_filler *f, int x, int y)
+{
+	int		i;
+
+	i = -1;
+	if (!(f->map = (char **)ft_memalloc((y + 1) * sizeof(char *))))
+		return ;
+	while (++i < x)
+	{
+		f->map[i] = ft_strnew(y);
+		if (!f->map[i])
 			return ;
 	}
 }
@@ -111,6 +131,19 @@ void	put_coord_xo(t_filler *f, char *line, int i, int j)
 	}
 }
 
+// void	read_map(t_filler *f, char *line, int i)
+// {
+// 	// int		j;
+
+// 	// j = 0;
+// 	// while (line[j] && ((line[j] >= 48 && line[j] <= 57) || line[j] == ' '))
+// 	// 	j++;
+// 	while (i < f->len_map_y)
+// 	{
+// 		f->map[i] = line;
+// 	}
+// }
+
 char	*read_plato(t_filler *f, char *line)
 {
 	int		i;
@@ -122,9 +155,12 @@ char	*read_plato(t_filler *f, char *line)
 	ft_strdel(&line);
 	get_next_line(WHERE_READ, &line);
 	ft_strdel(&line);
+	mas_malloc_map(f, f->len_map_x, f->len_map_y);
 	while (get_next_line(WHERE_READ, &line))
 	{
 		j = 0;
+		if (i < f->len_map_y)
+			f->map[i] = ft_strdup(line);
 		i++;
 		while (line[j] && line[j] != 'P' && ((line[j] >= 48 && line[j] <= 57) ||
 			line[j] == '.' || line[j] == ' '))
@@ -169,7 +205,7 @@ int		main(void)
 		//leak line перепресвоюється????
 		line = read_plato(f, line);
 		read_token_num(f, line);
-		// put_tkn_on_map_algo(f);
+//		algo(f);
 		write(1, "main\n", 5);
 	}
 	//ft_strdel(&line);
