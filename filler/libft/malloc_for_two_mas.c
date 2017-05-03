@@ -1,41 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   filler.h                                           :+:      :+:    :+:   */
+/*   malloc_for_two_mas.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nyatsulk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/04/25 15:54:51 by nyatsulk          #+#    #+#             */
-/*   Updated: 2017/04/25 15:54:52 by nyatsulk         ###   ########.fr       */
+/*   Created: 2017/05/03 19:53:29 by nyatsulk          #+#    #+#             */
+/*   Updated: 2017/05/03 19:53:31 by nyatsulk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FILLER_H
-# define FILLER_H
+#include "libft.h"
 
-# include "libft/libft.h"
-
-/*
-**	x,y  - coord tokena 
-*/
-
-typedef struct 	s_filler
+void	malloc_for_two_mas(char **s, int x, int y)//libft plus
 {
-	char		sgn;
-	int			len_map_x;
-	int			len_map_y;
-	// int			xx;
-	// int			xy;
-	// int			ox;
-	// int			oy;
-	int			t_x;
-	int			t_y;
-	char		**tkn;
-	char		**map;
-	int			*x;
-	int			*y;
-}				t_filler;
+	int		i;
 
-int				main(void);
-
-#endif
+	i = -1;
+	if (!(s = (char **)ft_memalloc((y + 1) * sizeof(char *))))// y+1????
+		return ;
+	while (++i < x)
+	{
+		s[i] = ft_strnew(y);
+		if (!s[i])
+			return ;
+	}
+}

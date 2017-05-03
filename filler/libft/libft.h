@@ -232,4 +232,11 @@ void				ft_put_count_str(char const *s);
 
 int					get_next_line(const int fd, char **line);
 
+/*
+** added func
+*/
+
+void				malloc_for_two_mas(char **s, int x, int y);
+
+
 #endif
