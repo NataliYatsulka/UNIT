@@ -32,8 +32,8 @@ typedef struct 	s_filler
 	int			t_y;
 	char		**tkn;
 	char		**map;
-	int			*x;
-	int			*y;
+	int			x_return;
+	int			y_return;
 }				t_filler;
 
 int				main(void);

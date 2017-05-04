@@ -14,12 +14,112 @@
 
 #define WHERE_READ 3 //0=з консолі, 3=зфайлу
 
-// void	algo(t_filler *f)
-// {
-// 	while (f->)
-// }
+int		ok_put(t_filler *f, int i, int j)
+{
+	int		k;
+	int		l;
 
-void	mas_malloc(t_filler *f, int x, int y)
+	k = -1;
+	f->x_return = i - 1;
+	f->y_return = j - 1;
+	while (++k < f->t_y)
+	{
+		l = 0;
+		while (l < f->t_x)
+		{
+			f->map[i][j] = f->tkn[k][l];
+			l++;
+			j++;
+		}
+		i++;
+	}
+	return (1);
+	
+}
+
+int		check_map_and_tkn(t_filler *f, int i, int j)
+{
+	int		k;
+	int		l;
+	int		count;
+
+	k = -1;
+	count = 0;
+	while (i < f->len_map_y - f->t_y && ++k < f->t_y)
+	{
+		l = 0;
+		while (j < f->len_map_x - f->t_x && l < f->t_x)
+		{
+			// printf("%s\n",&(f->map)[i][j] );
+			// printf("try: %d:%d; map = %c; tkn = %c \n", i+k, j+l, f->map[i + k][j + l], f->tkn[k][l]);
+			if ((f->map[i + k][j + l] == '.' || f->map[i + k][j + l] == f->sgn) &&
+				(f->tkn[k][l] == '.' || f->tkn[k][l] == f->sgn))
+			{
+				if (f->map[i + k][j + l] == f->sgn && f->tkn[k][l] == f->sgn)
+					count++;
+				l++;
+			}
+			else
+				return (0);
+		}
+		// i = i + f->len_map_y + 1;
+	}
+	//printf("\n");
+	// while (i < f->len_map_y - f->t_y && ++k < f->t_y)
+	// {
+	// 	l = 0;
+	// 	while (j < f->len_map_x - f->t_x && l < f->t_x)
+	// 	{
+	// 		// printf("%s\n",&(f->map)[i][j] );
+	// 		if ((f->map[i][j] == '.' || f->map[i][j] == f->sgn) &&
+	// 			(f->tkn[k][l] == '.' || f->tkn[k][l] == f->sgn))
+	// 		{
+	// 			if (f->map[i][j] == f->sgn && f->tkn[k][l] == f->sgn)
+	// 				count++;
+	// 			l++;
+	// 			j++;
+	// 		}
+	// 		else
+	// 			return (0);
+	// 	}
+	// 	i = i + f->len_map_y + 1;
+	// }
+	if (count == 1)
+		return (1);
+	else
+		return (0);		
+}
+
+void	put_tkn_on_map(t_filler *f)
+{
+	int		i;
+	int		j;
+
+	i = -1;
+	while (++i < f->len_map_y - f->t_y)
+	{
+		j = 0;
+		while (j < f->len_map_x - f->t_x)
+		{
+			
+			// printf("%d:%d ", i, j);
+			if (check_map_and_tkn(f, i, j) == 1)
+			{
+				if (ok_put(f, i, j) == 1)
+				{
+					ft_printf("%d %d", f->x_return, f->y_return);
+					return ;
+				}
+			}
+			j++;
+			// else
+			// 	;
+		}
+		// printf("\n");
+	}
+}
+
+void	mas_malloc(t_filler *f, int y)
 {
 	int		i;
 
@@ -49,10 +149,10 @@ void	mas_malloc_map(t_filler *f, int x, int y)
 	}
 }
 
-void	get_coord_tkn(t_filler *f)
-{
+// void	get_coord_tkn(t_filler *f)
+// {
 
-}
+// }
 
 void	place_token(t_filler *f, char *line)
 {
@@ -90,10 +190,10 @@ void	read_token_num(t_filler *f, char *line)
 		j++;
 	f->t_y = ft_atoi(&line[j]);
 	ft_strdel(&line);
-	mas_malloc(f, f->t_x, f->t_y);
+	mas_malloc(f, f->t_y);
 	while (get_next_line(WHERE_READ, &line))
 		place_token(f, line);
-	get_coord_tkn(f);
+//	get_coord_tkn(f);
 }
 
 void	read_numb_max_xy(t_filler *f, char *line)
@@ -183,11 +283,13 @@ int		main(void)
 	{
 		line = read_plato(f, line);
 		read_token_num(f, line);
+		put_tkn_on_map(f);
 //		algo(f);
-		write(1, "main\n", 5);
+		//write(1, "main\n", 5);
 	}
 	//ft_strdel(&line);
-	printf("end of program\n");
+	//printf("end of program\n");
+	//printf("%d %d\n", f->x_return, f->y_return);
 	return (0);
 	#if WHERE_READ == 3
 		close(3);
