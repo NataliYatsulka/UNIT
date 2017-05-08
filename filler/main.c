@@ -14,6 +14,23 @@
 
 #define WHERE_READ 0 //0=з консолі, 3=зфайлу
 
+void	delete_strct(t_filler *f)
+{
+	int		i;
+
+	i = -1;
+	f->t_x = 0;
+	f->t_y = 0;
+	while (f->tkn[++i])
+		ft_strdel(&f->tkn[i]);
+	f->tkn = NULL;
+	i = -1;
+	while (f->map[++i])
+		ft_strdel(&f->map[i]);
+	f->x_return = 0;
+	f->y_return = 0;
+}
+
 int		ok_put(t_filler *f, int i, int j)
 {
 	int		k;
@@ -161,7 +178,6 @@ void	read_token_num(t_filler *f, char **line)
 	while ((*line)[j] && ((*line)[j] >= 48 && (*line)[j] <= 57))
 		j++;
 	f->t_y = ft_atoi(&(*line)[j]);
-	//ft_strdel(&line);
 	mas_malloc(f, f->t_x);
 	place_token(f, line);
 }
@@ -223,14 +239,14 @@ int		main(void)
 {
 	char		*line;
 	t_filler	*f;
-	int	fd;
+	// int	fd;
 	// int i = -1;
 
 
-#if WHERE_READ == 3
-	open("/nfs/2016/n/nyatsulk/filler/22_04_17/n_yatsulk/test.c", O_RDONLY);
-#endif
-	fd = open("/nfs/2016/n/nyatsulk/filler/22_04_17/n_yatsulk/test2.c", O_WRONLY);
+// #if WHERE_READ == 3
+// 	open("/nfs/2016/n/nyatsulk/filler/22_04_17/n_yatsulk/test.c", O_RDONLY);
+// #endif
+// 	fd = open("/nfs/2016/n/nyatsulk/filler/22_04_17/n_yatsulk/test2.c", O_WRONLY);
 
 	line = NULL;
 	if (!(f = (t_filler *)ft_memalloc(sizeof(t_filler))))
@@ -249,7 +265,7 @@ int		main(void)
 		read_plato(f, &line);
 		// printf("%s\n", "put on map");
 		put_tkn_on_map(f);
-		f->t_x = 0;
+		delete_strct(f);
 	}
 	
 
