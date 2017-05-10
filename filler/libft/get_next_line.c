@@ -76,6 +76,7 @@ int				get_next_line(const int fd, char **line)
 {
 	t_list_1		*list;
 	static t_list_1	*head;
+    int j = 0;
 
 	list = check(fd, &head);
 	list->cut = NULL;
@@ -89,7 +90,10 @@ int				get_next_line(const int fd, char **line)
 	while ((list->t = ft_strchr(list->str, '\n')) == NULL)
 	{
 		ft_bzero(list->p, BUFF_SIZE);
-		if (read(fd, list->p, BUFF_SIZE) == 0)
+        j = read(fd, list->p, BUFF_SIZE);
+        if (j == 0)
+            
+//		if (read(fd, list->p, BUFF_SIZE) == 0)
 			return (ft_int(list, line));
 		list->t = list->str;
 		list->str = ft_strjoin(list->str, list->p);

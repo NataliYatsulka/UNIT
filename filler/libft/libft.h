@@ -22,7 +22,7 @@
 # include <sys/uio.h>
 # include <fcntl.h>
 
-# define BUFF_SIZE 1
+# define BUFF_SIZE 10
 
 /*
 ** printf

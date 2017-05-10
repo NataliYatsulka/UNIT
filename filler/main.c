@@ -89,17 +89,17 @@ void	put_tkn_on_map(t_filler *f)
 	int		j;
 
 	i = -1;
-	while (++i < f->len_map_x - f->t_x)
+	while (++i < f->len_map_x - f->t_x +1)
 	{
 		j = 0;
-		while (j < f->len_map_y - f->t_y)
+		while (j < f->len_map_y - f->t_y +1)
 		{//printf("i=%d j=%d,, len_x=%d len_y=%d,, t_x=%d t_y=%d yysy=%d xxx=%d\n", i, j, f->len_map_x,
 			//f->len_map_y, f->t_x, f->t_y, f->len_map_y - f->t_y, f->len_map_x - f->t_x);
 			if (check_map_and_tkn(f, i, j) == 1)
 			{
 				f->x_return = i;
 				f->y_return = j;
-				printf("%d %d\n", f->x_return, f->y_return);
+				// ft_printf("%d %d\n", f->x_return, f->y_return);
 				return ;
 
 				// if (ok_put(f, i, j) == 1)
@@ -139,19 +139,32 @@ void	mas_malloc_map(t_filler *f, int x)
 	// }
 }
 
-void	place_token(t_filler *f, char **line)
+void	place_token(t_filler *f)//, char **line)
 {
 	int		i;
 	int		j;
+	char		*line_n;
 
-	i = -1;
-	ft_strdel(line);
-	while (++i < f->t_x)
+
+	i = 0;
+	// ft_strdel(line);
+	line_n = NULL;
+	while (i < f->t_x)
+	//while (get_next_line(WHERE_READ, line))
 	{
-		get_next_line(WHERE_READ, line);
-		f->tkn[i] = ft_strdup(*line);
-		ft_strdel(line);
+		//printf("%s\n", "read t");
+		get_next_line(WHERE_READ, &line_n);
+		// printf("4%s\n", *line);
+		f->tkn[i] = ft_strdup(line_n);
+		i++;
+		ft_strdel(&line_n);
 	}
+	// j = -1;
+	// while (++j < f->t_y)
+	// {
+	// f->tkn[i] = ft_strnew(f->t_y);
+	// read(0, f->tkn[i], f->t_y);
+	// }
 	i = -1;
 	while (++i < f->t_x)
 	{
@@ -179,7 +192,7 @@ void	read_token_num(t_filler *f, char **line)
 		j++;
 	f->t_y = ft_atoi(&(*line)[j]);
 	mas_malloc(f, f->t_x);
-	place_token(f, line);
+	place_token(f);// line);
 }
 
 void	read_numb_max_xy(t_filler *f, char **line)
@@ -206,23 +219,30 @@ void	read_plato(t_filler *f, char **line)
 		read_numb_max_xy(f, line);
 	ft_strdel(line);
 	get_next_line(WHERE_READ, line);
+	// printf("2%s\n", *line);
 	ft_strdel(line);
 	mas_malloc_map(f, f->len_map_x);
-	while (!f->tkn && get_next_line(WHERE_READ, line))
+	while (i < f->len_map_x)
 	{
-		if (i < f->len_map_x)
-			f->map[i] = ft_strsub(*line, 4, f->len_map_y);
+		get_next_line(WHERE_READ, line);
+		// if (i < f->len_map_x)
+		// printf("3%s\n", *line);
+		f->map[i] = ft_strsub(*line, 4, f->len_map_y);
 		i++;
-		if ((*line)[0] != 'P')
-			ft_strdel(line);
-		else
-		{
-			// i = -1;									//test
-			// while (++i < f->len_map_x)
-			// 	dprintf(0, "%s \n", f->map[i]);	//test
-			read_token_num(f, line);
-		}
+		// if ((*line)[0] != 'P')
+		ft_strdel(line);
+		// else
+		// {
+		// 	// i = -1;									//test
+		// 	// while (++i < f->len_map_x)
+		// 	// 	dprintf(0, "%s \n", f->map[i]);	//test
+			
+		// }
 	}
+	get_next_line(WHERE_READ, line);
+	// printf("n%s\n", *line);
+	read_token_num(f, line);
+
 	return ;
 }
 
@@ -252,7 +272,14 @@ int		main(void)
 	if (!(f = (t_filler *)ft_memalloc(sizeof(t_filler))))
 		return (1);
 	f->sgn = 'X';
+	f->x_return = 0;
+	f->y_return = 0;
+	// while (1)
+	// {get_next_line(0, &line);
+	// 	printf("%d %d\n", 12, 14);
+	// }
 	get_next_line(WHERE_READ, &line);
+	// printf("0%s\n", line);
 	if (ft_strnequ(line, "$$$ exec p1", 11))
 		f->sgn = 'O';
 	ft_strdel(&line);
@@ -262,16 +289,14 @@ int		main(void)
 	// put_tkn_on_map(f);
 	while (get_next_line(WHERE_READ, &line))
 	{
+		// printf("1%s\n", line);
 		read_plato(f, &line);
 		// printf("%s\n", "put on map");
+		ft_strdel(&line);
 		put_tkn_on_map(f);
-		delete_strct(f);
+		ft_printf("%d %d\n", f->x_return, f->y_return);
+		// delete_strct(f);
 	}
-	
-
-	// get_next_line(WHERE_READ, &line);
-	// read_plato(f, &line);
-	// put_tkn_on_map(f);
 	// #if WHERE_READ == 3
 	// while (++i < f->len_map_x)
 	// 	dprintf(fd, "%s \n", f->map[i]);
@@ -282,5 +307,5 @@ int		main(void)
 	// close(3);
 	// #endif
 
-	return (0);
+	return (1);
 }
