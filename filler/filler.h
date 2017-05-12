@@ -14,6 +14,7 @@
 # define FILLER_H
 
 # include "libft/libft.h"
+# define R(a, b) ((a >= b) ? a : b)
 
 /*
 **	x,y  - coord tokena 

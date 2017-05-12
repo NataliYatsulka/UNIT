@@ -147,21 +147,66 @@ void	place_token(t_filler *f)
 	}
 }
 
-int		module(int i, int j, int x, int y)
+int		module(int x1, int y1, int x2, int y2)//(x1, y1) - поточна кординати (x2, y2) - координата супротивника
 {
 	int		res;
 
 	res = 0;
-	if ((i - j) <= 0)
-		res = j - i;
+	if ((x1 - x2) <= 0)
+		res = x2 - x1;
 	else
-		res = i - j;
-	if ((x - y) >= 0)
-		res = res + x - y;
+		res = x1 - x2;
+	if ((y1 - y2) >= 0)
+		res = res + y1 - y2;
 	else
-		res = res + y - x;
+		res = res + y2 - y1;
 	return (res);
 }
+
+void	write_numb_map(t_filler *f)
+{
+	int		i;
+	int		j;
+	int		dist;
+
+	i = -1;
+	dist = 0;
+	while (++i < f->len_map_x)
+	{
+		j = -1;
+		while (++j < f->len_map_y)
+		{
+			if (f->map[i][j] == '.' || f->map[i][j] != f->sgn)// || f->distmap[i][j] > 0)
+			{
+				dist = module(i, j, f->enem_x, f->enem_y);
+				if (dist <= f->distmap[i][j])
+					f->distmap[i][j] = dist;//module(i, j, f->enem_x, f->enem_y);
+			}
+		}
+	}
+}
+
+// void	get_coord_enemy(t_filler *f)
+// {
+// 	int		i;
+// 	int		j;
+
+// 	i = -1;
+// 	while (++i < f->len_map_x)
+// 	{
+// 		j = -1;
+// 		while (++j < f->len_map_y)
+// 		{
+// 			if ((f->map[i][j] != '.' && f->map[i][j] != f->sgn)
+// 				&& f->distmap[i][j] < 0)
+// 			{
+// 				f->enem_x = i;
+// 				f->enem_y = j;
+// 				write_numb_map(f);
+// 			}
+// 		}
+// 	}
+// }
 
 void	put_d_map_2(t_filler *f)
 {
@@ -174,18 +219,39 @@ void	put_d_map_2(t_filler *f)
 		j = -1;
 		while (++j < f->len_map_y)
 		{
-			if (f->map[i][j] == f->sgn)//delete coment for me (-2) && for enemy (-1)
+			if (f->map[i][j] == f->sgn)//delete coment: for me (-2) && for enemy (-1)
 				f->distmap[i][j] = -2;
 			else if (f->map[i][j] != '.' && f->map[i][j] != f->sgn)
-				f->distmap[i][j] = -1;
+			{
+				f->distmap[i][j] = -1;// поки ворог ставити координати
+				f->enem_x = i;
+				f->enem_y = j;
+				write_numb_map(f);
+			}
 		}
-	}	
+	}
+	// get_coord_enemy(f);
+	//write_numb_map(f);
+}
+
+void	init_map(t_filler *f)
+{
+	int		i;
+	int		j;
+
+	i = -1;
+	while (++i < f->len_map_x)
+	{
+		j = -1;
+		while (++j < f->len_map_y)
+			f->distmap[i][j] = 500;
+	}
 }
 
 void	put_distance_map(t_filler *f)
 {
 	int		i;
-	int		j;
+	// int		j;
 
 	i = -1;
 	if (!(f->distmap = (int **)ft_memalloc((f->len_map_x + 1) * sizeof(int *))))
@@ -196,29 +262,21 @@ void	put_distance_map(t_filler *f)
 			* sizeof(int))))
 			return ;
 	}
+	init_map(f);
 	i = -1;
-	while (++i < f->len_map_x)
-	{
-		j = -1;
-		while (++j < f->len_map_y)
-		{
-			if (f->map[i][j] == f->sgn)//delete coment for me (-2) && for enemy (-1)
-				f->distmap[i][j] = -2;
-			else if (f->map[i][j] != '.' && f->map[i][j] != f->sgn)
-				f->distmap[i][j] = -1;
-		}
-	}
 	put_d_map_2(f);
 	// i = 0;			//test delete
 	// j = 0;
 	// while (j < f->len_map_x)
 	// {
 	// 	i = 0;
+	// 	ft_printf("distmap[%2d] = ", j);
 	// 	while (i < f->len_map_y)
 	// 	{
-	// 		ft_printf("distmap[%d][%d] = %d\n", j, i, f->distmap[j][i]);
+	// 		ft_printf("%2d ", f->distmap[j][i]);
 	// 		i++;
 	// 	}
+	// 	ft_printf("\n");
 	// 	j++;
 	// }
 }
