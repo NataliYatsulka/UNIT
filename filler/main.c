@@ -12,8 +12,6 @@
 
 #include "filler.h"
 
-#define WHERE_READ 0 //0=з консолі, 3=зфайлу
-
 void	delete_strct(t_filler *f)
 {
 	int		i;
@@ -31,106 +29,72 @@ void	delete_strct(t_filler *f)
 	f->y_return = 0;
 }
 
-int		ok_put(t_filler *f, int i, int j)
-{
-	int		k;
-	int		l;
-
-	k = -1;
-	f->x_return = i;
-	f->y_return = j;
-	while (++k < f->t_x)
-	{
-		l = 0;
-		while (l < f->t_y)
-		{
-			if (f->tkn[k][l] == '.')
-				l++;
-			else
-			{
-				f->map[i + k][j + l] = f->tkn[k][l];
-				l++;
-			}
-		}
-	}
-	return (1);
-}
-
 int		check_map_and_tkn(t_filler *f, int i, int j)
 {
 	int		k;
 	int		l;
+	int		s;
 	int		count;
 
-	k = -1;
 	count = 0;
-	while (++k < f->t_x)
+	s = 0;
+	k = -1;
+	while (f->tkn[++k])
 	{
-		l = 0;
-		while (l < f->t_y)
+		if (k && !f->map[++i])
+			return (0);
+		l = -1;
+		while (f->tkn[k][++l])
 		{
-			if ((f->map[i + k][j + l] == '.' || f->map[i + k][j + l] == f->sgn)
-				&& (f->tkn[k][l] == '.' || f->tkn[k][l] == f->sgn))
-			{
-				if (f->map[i + k][j + l] == f->sgn && f->tkn[k][l] == f->sgn)
-					count++;
-				l++;
-			}
-			else
+			if (!f->map[i][j + l] || (f->tkn[k][l] == f->sgn
+				&& (f->map[i][j + l] != f->sgn && f->map[i][j + l] != '.')))
 				return (0);
+			else if (f->tkn[k][l] == f->sgn && f->map[i][j + l] == f->sgn)
+				count++;
+			else if (f->map[i][j + l] == '.')
+				s = s + f->distmap[i][j + l];
 		}
 	}
-	return (count == 1 ? 1 : 0);
+	return ((count != 1) ? 0 : s);
 }
 
-void	put_tkn_on_map(t_filler *f)
+int		put_tkn_on_map(t_filler *f)
 {
 	int		i;
 	int		j;
+	int		d;
 
-	i = -1;
-	while (++i < f->len_map_x - f->t_x +1)
+	i = 0;
+	while (f->map[i])
 	{
 		j = 0;
-		while (j < f->len_map_y - f->t_y +1)
+		while (f->map[i][j])
 		{
-			if (check_map_and_tkn(f, i, j) == 1)
+			d = check_map_and_tkn(f, i, j);
+			if (d && d < f->sum)
 			{
 				f->x_return = i;
 				f->y_return = j;
-				return ;
+				f->sum = d;
 			}
 			j++;
 		}
+		i++;
 	}
+	return (0);
 }
-
-// void	mas_malloc(t_filler *f, int x)
-// {
-// 	if (!(f->tkn = (char **)malloc((x + 1) * sizeof(char *))))
-// 		return ;
-// 	f->tkn[x] = NULL;
-// }
-
-// void	mas_malloc_map(t_filler *f, int x)
-// {
-// 	if (!(f->map = (char **)malloc((x + 1) * sizeof(char *))))
-// 		return ;
-// 	f->map[x] = NULL;
-// }
 
 void	place_token(t_filler *f)
 {
 	int		i;
 	int		j;
-	char		*line_n;
-
+	char	*line_n;
 
 	i = 0;
 	line_n = NULL;
 	while (i < f->t_x)
 	{
-		get_next_line(WHERE_READ, &line_n);
+		get_next_line(0, &line_n);
 		f->tkn[i] = ft_strdup(line_n);
 		i++;
 		ft_strdel(&line_n);
@@ -147,7 +111,7 @@ void	place_token(t_filler *f)
 	}
 }
 
-int		module(int x1, int y1, int x2, int y2)//(x1, y1) - поточна кординати (x2, y2) - координата супротивника
+int		module(int x1, int y1, int x2, int y2)
 {
 	int		res;
 
@@ -176,37 +140,15 @@ void	write_numb_map(t_filler *f)
 		j = -1;
 		while (++j < f->len_map_y)
 		{
-			if (f->map[i][j] == '.' || f->map[i][j] != f->sgn)// || f->distmap[i][j] > 0)
+			if (f->map[i][j] == '.' || f->map[i][j] != f->sgn)
 			{
 				dist = module(i, j, f->enem_x, f->enem_y);
 				if (dist <= f->distmap[i][j])
-					f->distmap[i][j] = dist;//module(i, j, f->enem_x, f->enem_y);
+					f->distmap[i][j] = dist;
 			}
 		}
 	}
 }
-
-// void	get_coord_enemy(t_filler *f)
-// {
-// 	int		i;
-// 	int		j;
-
-// 	i = -1;
-// 	while (++i < f->len_map_x)
-// 	{
-// 		j = -1;
-// 		while (++j < f->len_map_y)
-// 		{
-// 			if ((f->map[i][j] != '.' && f->map[i][j] != f->sgn)
-// 				&& f->distmap[i][j] < 0)
-// 			{
-// 				f->enem_x = i;
-// 				f->enem_y = j;
-// 				write_numb_map(f);
-// 			}
-// 		}
-// 	}
-// }
 
 void	put_d_map_2(t_filler *f)
 {
@@ -219,39 +161,23 @@ void	put_d_map_2(t_filler *f)
 		j = -1;
 		while (++j < f->len_map_y)
 		{
-			if (f->map[i][j] == f->sgn)//delete coment: for me (-2) && for enemy (-1)
+			if (f->map[i][j] == f->sgn)
 				f->distmap[i][j] = -2;
 			else if (f->map[i][j] != '.' && f->map[i][j] != f->sgn)
 			{
-				f->distmap[i][j] = -1;// поки ворог ставити координати
+				f->distmap[i][j] = -1;
 				f->enem_x = i;
 				f->enem_y = j;
 				write_numb_map(f);
 			}
 		}
 	}
-	// get_coord_enemy(f);
-	//write_numb_map(f);
-}
-
-void	init_map(t_filler *f)
-{
-	int		i;
-	int		j;
-
-	i = -1;
-	while (++i < f->len_map_x)
-	{
-		j = -1;
-		while (++j < f->len_map_y)
-			f->distmap[i][j] = 500;
-	}
 }
 
 void	put_distance_map(t_filler *f)
 {
 	int		i;
-	// int		j;
+	int		j;
 
 	i = -1;
 	if (!(f->distmap = (int **)ft_memalloc((f->len_map_x + 1) * sizeof(int *))))
@@ -262,23 +188,15 @@ void	put_distance_map(t_filler *f)
 			* sizeof(int))))
 			return ;
 	}
-	init_map(f);
 	i = -1;
+	while (++i < f->len_map_x)
+	{
+		j = -1;
+		while (++j < f->len_map_y)
+			f->distmap[i][j] = 500;
+	}
+	f->sum = 500;
 	put_d_map_2(f);
-	// i = 0;			//test delete
-	// j = 0;
-	// while (j < f->len_map_x)
-	// {
-	// 	i = 0;
-	// 	ft_printf("distmap[%2d] = ", j);
-	// 	while (i < f->len_map_y)
-	// 	{
-	// 		ft_printf("%2d ", f->distmap[j][i]);
-	// 		i++;
-	// 	}
-	// 	ft_printf("\n");
-	// 	j++;
-	// }
 }
 
 void	read_token_num(t_filler *f, char **line)
@@ -295,7 +213,6 @@ void	read_token_num(t_filler *f, char **line)
 	if (!(f->tkn = (char **)malloc((f->t_x + 1) * sizeof(char *))))
 		return ;
 	f->tkn[f->t_x] = NULL;
-	// mas_malloc(f, f->t_x);
 	place_token(f);
 }
 
@@ -320,57 +237,37 @@ void	read_plato(t_filler *f, char **line)
 	if (!f->len_map_x || !f->len_map_y)
 		read_numb_max_xy(f, line);
 	ft_strdel(line);
-	get_next_line(WHERE_READ, line);
+	get_next_line(0, line);
 	ft_strdel(line);
 	if (!(f->map = (char **)malloc((f->len_map_x + 1) * sizeof(char *))))
 		return ;
 	f->map[f->len_map_x] = NULL;
-	// mas_malloc_map(f, f->len_map_x);
 	while (++i < f->len_map_x)
 	{
-		get_next_line(WHERE_READ, line);
+		get_next_line(0, line);
 		f->map[i] = ft_strsub(*line, 4, f->len_map_y);
 		ft_strdel(line);
 	}
 	put_distance_map(f);
-	get_next_line(WHERE_READ, line);
+	get_next_line(0, line);
 	read_token_num(f, line);
 	return ;
 }
-
-// все нулями робить ft_memaloc
-// void	list_f_zero(void)
-// {
-// 	f->sgn = 'X';
-// 	f->len_map_x = 0;
-// 	f->len_map_y = 0;
-// 	return (f);
-// }
 
 int		main(void)
 {
 	char		*line;
 	t_filler	*f;
-	// int	fd;
-	// int i = -1;
-
-
-// #if WHERE_READ == 3
-// 	open("/nfs/2016/n/nyatsulk/filler/22_04_17/n_yatsulk/test.c", O_RDONLY);
-// #endif
-// 	fd = open("/nfs/2016/n/nyatsulk/filler/22_04_17/n_yatsulk/test2.c", O_WRONLY);
 
 	line = NULL;
 	if (!(f = (t_filler *)ft_memalloc(sizeof(t_filler))))
 		return (1);
 	f->sgn = 'X';
-	f->x_return = 0;
-	f->y_return = 0;
-	get_next_line(WHERE_READ, &line);
+	get_next_line(0, &line);
 	if (ft_strnequ(line, "$$$ exec p1", 11))
 		f->sgn = 'O';
 	ft_strdel(&line);
-	while (get_next_line(WHERE_READ, &line))
+	while (get_next_line(0, &line))
 	{
 		read_plato(f, &line);
 		ft_strdel(&line);
@@ -378,15 +275,5 @@ int		main(void)
 		ft_printf("%d %d\n", f->x_return, f->y_return);
 		delete_strct(f);
 	}
-	// #if WHERE_READ == 3
-	// while (++i < f->len_map_x)
-	// 	dprintf(fd, "%s \n", f->map[i]);
-	// i = -1;
-	// while (++i < f->t_x)
-	// 	dprintf(fd, "%s %d %d/// %d %d\n", f->tkn[i], f->t_x, f->t_y, f->x_return, f->y_return);
-	// dprintf(fd, "x_y_return %d %d\n", f->x_return, f->y_return);
-	// close(3);
-	// #endif
-
 	return (1);
 }

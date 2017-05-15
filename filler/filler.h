@@ -14,7 +14,6 @@
 # define FILLER_H
 
 # include "libft/libft.h"
-# define R(a, b) ((a >= b) ? a : b)
 
 /*
 **	x,y  - coord tokena 
@@ -34,6 +33,7 @@ typedef struct 	s_filler
 	int			enem_y;
 	int			x_return;
 	int			y_return;
+	int			sum;
 }				t_filler;
 
 int				main(void);
