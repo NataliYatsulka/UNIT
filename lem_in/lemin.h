@@ -15,21 +15,32 @@
 
 # include "libft/libft.h"
 
-typedef struct	s_read
+typedef struct		s_read
 {
-	char		*line;
-}				t_read;
+	char			*line;
+	struct s_read	*n;
+}					t_read;
 
-typedef struct	s_room
+typedef struct		s_room
 {
-	char		sgn;
-}				t_room;
+	char			*name_room;
+	int				numb_room;
+	int				x_room;
+	int				y_room;
+	struct s_room	*n;
+}					t_room;
 
-typedef struct	s_link
+typedef struct		s_link
 {
-	char		sgn;
-}				t_link;
+	char			sgn;
+}					t_link;
 
-int				main(void);
+typedef struct		s_output
+{
+	int				ants;
+	struct s_read
+}					t_output;
+
+int					main(void);
 
 #endif
