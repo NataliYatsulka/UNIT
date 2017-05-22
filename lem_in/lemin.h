@@ -27,7 +27,7 @@ typedef struct		s_read
 }					t_read;
 
 /*
-**	x_room y_room - coordinates near the name of room	
+**	x_room y_room - coordinates near the name of room
 **	n - next
 **
 */
@@ -52,13 +52,21 @@ typedef struct		s_link
 
 /*
 **	ants - numb in start
-**	
+**
 */
 
 typedef struct		s_output
 {
 	int				ants;
-	
+	int				count_start;
+	int				count_end;
+	char			*start;
+	// int				x_start;
+	// int				y_start;
+	char			*end;
+	// int				x_end;
+	// int				y_end;
+
 }					t_output;
 
 int					main(void);
