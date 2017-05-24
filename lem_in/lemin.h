@@ -27,18 +27,19 @@ typedef struct		s_read
 }					t_read;
 
 /*
-**	x_room y_room - coordinates near the name of room
-**	n - next
-**
+**	x, y - coordinates near the name of room
+**	next
+**	nmb - порядковий номер
+**	name - name room
 */
 
 typedef struct		s_room
 {
-	char			*name_room;
-	int				numb_room;
-	int				x_room;
-	int				y_room;
-	struct s_room	*n;
+	char			*name;
+	int				numb;
+	int				x;
+	int				y;
+	struct s_room	*next;
 }					t_room;
 
 /*
@@ -58,12 +59,13 @@ typedef struct		s_link
 typedef struct		s_output
 {
 	int				ants;
-	int				count_start;
-	int				count_end;
-	char			*start;
+	int				number_room_start;
+	int				number_room_end;
+	t_room			*room;
+	// char			*start;??
 	// int				x_start;
 	// int				y_start;
-	char			*end;
+	// char			*end;??
 	// int				x_end;
 	// int				y_end;
 
