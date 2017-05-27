@@ -59,9 +59,14 @@ typedef struct		s_link
 typedef struct		s_output
 {
 	int				ants;
+	
 	int				number_room_start;
 	int				number_room_end;
-	t_room			*room;
+	struct s_room	*room;
+
+	char	*test;
+	int		test1;
+	int		test2;
 	// char			*start;??
 	// int				x_start;
 	// int				y_start;
