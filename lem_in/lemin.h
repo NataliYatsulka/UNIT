@@ -63,10 +63,8 @@ typedef struct		s_output
 	int				number_room_start;
 	int				number_room_end;
 	struct s_room	*room;
-
+	
 	char	*test;
-	int		test1;
-	int		test2;
 	// char			*start;??
 	// int				x_start;
 	// int				y_start;

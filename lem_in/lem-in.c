@@ -20,6 +20,13 @@ int					g_res;
 ///////////////////////////////
 #include "lemin.h"
 
+/*
+**	delete
+*/
+int		check_not_links(char *line);
+
+
+/////////////
 void	ft_error(char *s)
 {
 	write(1, s, ft_strlen(s));
@@ -55,10 +62,45 @@ void	write_read(t_read **read, char *line)
 
 ////////////////////
 
+void	read_name_links(t_read *read, t_output *otp, char *line)
+{
+	write_read(&read, line);
+	otp->test = NULL;
+}
 
+int		check_links(char *line)
+{
+	int		i;
+	int		count;
+
+	i = -1;
+	count = 0;
+	while (line[++i])
+	{
+		if (line[i] == '-')
+			count++;
+	}
+	if (count == 2)
+		return (1);
+	return (0);
+}
+
+void	find_links(t_read **read, t_output *otp, char *line)
+{
+	if (line == NULL)
+		ft_error("emty line. no links");
+	if (otp->number_room_start < 0 || otp->number_room_end < 0)
+		ft_error("no end or start");
+	if (otp->room->numb < 2)
+		ft_error("no rooms between start - end");
+	if (line != NULL)
+		if (check_not_links(line) < 1 && check_links(line))
+			read_name_links(*read, otp, line);
+
+}
 
 /*
-**	
+**	block ROOM
 */
 
 int		check_not_links(char *line)
@@ -88,6 +130,7 @@ void	create_name_room(t_output *otp)
 	if (!(tmp->next = (t_room *)malloc(sizeof(t_room))))
 		return ;
 	tmp->next->name = NULL;
+	//виправити для проходження по-порядку tmp->next->numb
 	tmp->next->numb = 0;
 	tmp->next->x = 0;
 	tmp->next->y = 0;
@@ -99,22 +142,61 @@ int		room_name(t_output *otp, char *line1)
 
 	i = -1;
 	create_name_room(otp);
-	// if (otp->number_room_start > -1)
-	// 	ft_error("start two times");
-	while (line1[++i])// && !otp->room->name)
+	while (line1[++i] && !otp->room->name)
 	{
 		if (line1[i] == ' ')
 		{
-			/*
-			**	виправити функцію запису назви в структуру  //after delete
-			*/
 			otp->room->name = ft_strsub(line1, 0, i);
-			// otp->number_room_start = otp->room->numb;
-			// otp->room->numb++;
 			break ;
 		}
 		if (line1[i] == '-')
-			ft_error("bad room name, no '-' at the name\n");
+			ft_error("1bad room name, no '-' at the name1\n");
+	}
+	return (i);
+}
+
+int		room_name_start(t_output *otp, char *line1)
+{
+	int		i;
+
+	i = -1;
+	create_name_room(otp);
+	if (otp->number_room_start > -1)
+		ft_error("start two times\n");
+	while (line1[++i] && !otp->room->name)
+	{
+		if (line1[i] == ' ')
+		{
+			otp->room->name = ft_strsub(line1, 0, i);
+			otp->number_room_start = otp->room->numb;
+			otp->room->numb++;
+			break ;
+		}
+		if (line1[i] == '-')
+			ft_error("2bad room name, no '-' at the name2\n");
+	}
+	return (i);
+}
+
+int		room_name_end(t_output *otp, char *line1)
+{
+	int		i;
+
+	i = -1;
+	create_name_room(otp);
+	if (otp->number_room_end > -1)
+		ft_error("end two times\n");
+	while (line1[++i] && !otp->room->name)
+	{
+		if (line1[i] == ' ')
+		{
+			otp->room->name = ft_strsub(line1, 0, i);
+			otp->number_room_end = otp->room->numb;
+			otp->room->numb++;
+			break ;
+		}
+		if (line1[i] == '-')
+			ft_error("3bad room name, no '-' at the name3\n");
 	}
 	return (i);
 }
@@ -126,7 +208,7 @@ int		room_name(t_output *otp, char *line1)
 int		valid_numb(char *line, int i)
 {
 	i++;
-	while (line[i] && line[i] != ' ')
+	while (line[i] && (line[i] != ' '))// || line[i + 1] != '\0'))
 	{
 		if (ft_isdigit(line[i]))
 			i++;
@@ -142,19 +224,19 @@ void	put_coord_start(t_output *otp, char *line1)
 
 	j = 0;
 	if (check_not_links(line1) && line1[0] != ' ')
-		j = room_name(otp, line1);
+		j = room_name_start(otp, line1);
 	else
-		ft_error("no valid name\n");
+		ft_error("no valid name_start\n");
 	if (line1[j] == ' ' && line1[j + 1])
 		j = valid_numb(line1, j);
 	else
-		ft_error("no coord 1\n");
+		ft_error("no coord 1_start\n");
 	if (line1[j] == ' ' && line1[j + 1])
 		j = valid_numb(line1, j);
 	else
-		ft_error("no coord 2\n");
-	if (line1[j + 1] != 0)
-		ft_error("smth after second coord in room block\n");
+		ft_error("no coord 2_start\n");
+	if (line1[j] != 0)
+		ft_error("smth after second coord in room block start\n");
 }
 
 void	put_coord_end(t_output *otp, char *line1)
@@ -163,19 +245,19 @@ void	put_coord_end(t_output *otp, char *line1)
 
 	j = 0;
 	if (check_not_links(line1) && line1[0] != ' ')
-		j = room_name(otp, line1);//виправити для end???? //delete after do this func
+		j = room_name_end(otp, line1);//виправити для end???? //delete after do this func
 	else
-		ft_error("no valid name\n");
+		ft_error("no valid name_end\n");
 	if (line1[j] == ' ' && line1[j + 1])
 		j = valid_numb(line1, j);
 	else
-		ft_error("no coord 1\n");
+		ft_error("no coord 1 end\n");
 	if (line1[j] == ' ' && line1[j + 1])
 		j = valid_numb(line1, j);
 	else
-		ft_error("no coord 2\n");
-	if (line1[j + 1] != 0)
-		ft_error("smth after second coord in room block\n");
+		ft_error("no coord 2 end\n");
+	if (line1[j] != 0)
+		ft_error("smth after second coord in room block end\n");
 }
 
 void	check_s_e_command(t_read **read, t_output *otp, char *line)
@@ -220,12 +302,12 @@ void	put_good_room(t_output *otp, char *line)
 	if (line[j] == ' ' && line[j + 1])
 		j = valid_numb(line, j);
 	else
-		ft_error("no coord 1\n");
+		ft_error("no coord 1 ...\n");
 	if (line[j] == ' ' && line[j + 1])
 		j = valid_numb(line, j);
 	else
-		ft_error("no coord 2\n");
-	if (line[j + 1] != 0)
+		ft_error("no coord 2 ...\n");
+	if (line[j] != 0)
 		ft_error("smth after second coord in room block\n");
 }
 
@@ -254,8 +336,14 @@ void	find_rooms(t_read **read, t_output *otp)
 		}
 		ft_strdel(&line);
 	}
+	find_links(read, otp, line);
+	// if (line == NULL)
+	// 	ft_error("emty line. no links");
+	// if (otp->number_room_start < 0 || otp->number_room_end < 0)
+	// 	ft_error("no end or start");
+	// if (otp->room->numb < 2)
+	// 	ft_error("no rooms between start - end");
 	// if (line != NULL)
-	// find_links(read, otp, &line);
 }
 
 /*//////////////////////////////////////////////////////////////////////////////
@@ -324,7 +412,7 @@ int		main(void)
 	t_read		*read;
 	t_output	*out;
 	// t_room		*room;
-	t_read		*tmp;
+	// t_read		*tmp;
 
 	// init_struct(&out);
 	if (!(read = (t_read *)malloc(sizeof(t_read))))
@@ -342,13 +430,13 @@ int		main(void)
 	out->room->next = NULL;
 
 	find_numb_ants(&read, out);
-	printf("nnnnn%d\n", out->ants);
-	tmp = read;
-	read = read->nxt;
-	ft_strdel((char **)&tmp);
+	// tmp = read;
+	// read = read->nxt;
+	// ft_strdel((char **)&tmp);
 	find_rooms(&read, out);//, out);
 
 	write_input_on_console(read);
 	// delete_struct(&read, &out);
+	while (1);
 	return (1);
 }
