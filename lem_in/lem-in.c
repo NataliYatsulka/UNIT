@@ -62,11 +62,9 @@ void	write_read(t_read **read, char *line)
 
 ////////////////////
 
-void	read_name_links(t_read *read, t_output *otp, char *line)
-{
-	write_read(&read, line);
-	otp->test = NULL;
-}
+/*
+**	block LINKS
+*/
 
 int		check_links(char *line)
 {
@@ -80,23 +78,76 @@ int		check_links(char *line)
 		if (line[i] == '-')
 			count++;
 	}
-	if (count == 2)
+	if (count == 1)
 		return (1);
 	return (0);
+}
+
+void	matrix_for_links(t_read *read)
+{
+	int		j;
+
+	j = -1;
+	read->link = (char **)malloc((read->room->numb + 1) * sizeof(char *));
+	if (!read->link)
+		ft_error("mall");
+	read->link[read->room->numb + 1] = NULL; 
+	while (++j < read->room->numb + 1)
+	{
+	read->lin
+	}
+}
+
+void	write_in_struct_links(t_link *link, char *line)
+{
+
+}
+
+void	read_name_links(t_read *read, t_output *otp, char *line)
+{
+	char	*line1;
+	t_link	*link;
+
+	if (!(link = (t_link *)malloc(sizeof(t_link))))
+		return ;
+	line1 = NULL;
+	write_read(&read, line);
+	matrix_for_links(read);
+	write_in_struct_links(link, line);
+	otp->test = NULL;//delete if no need in struct otp
+	while (get_next_line(0, &line1) && (line1[0] == '#'))
+	{
+		if (line1[0] == '#' && line1[1] == '#')
+		{
+			if (ft_strequ(line1, "##start") || ft_strequ(line1, "##end"))
+				ft_error("##start or ##end in block links");
+			else
+				write_read(&read, line1);
+		}
+		else if (line1[0] == '#')
+			write_read(&read, line1);
+		else if (1)
+		{
+			
+			write_read(&read, line1);
+		}
+		ft_strdel(&line1);
+	}
 }
 
 void	find_links(t_read **read, t_output *otp, char *line)
 {
 	if (line == NULL)
-		ft_error("emty line. no links");
+		ft_error("empty line. no links");
 	if (otp->number_room_start < 0 || otp->number_room_end < 0)
-		ft_error("no end or start");
-	if (otp->room->numb < 2)
-		ft_error("no rooms between start - end");
+		ft_error("no end or start in block room");
 	if (line != NULL)
-		if (check_not_links(line) < 1 && check_links(line))
+	{
+		if (check_links(line))
 			read_name_links(*read, otp, line);
-
+		else
+			ft_error("smth went wrong in func find_links");
+	}
 }
 
 /*
@@ -223,7 +274,7 @@ void	put_coord_start(t_output *otp, char *line1)
 	int		j;
 
 	j = 0;
-	if (check_not_links(line1) && line1[0] != ' ')
+	if (check_not_links(line1) && line1[0] != ' ' && line1[0] != 'L')
 		j = room_name_start(otp, line1);
 	else
 		ft_error("no valid name_start\n");
@@ -244,7 +295,7 @@ void	put_coord_end(t_output *otp, char *line1)
 	int		j;
 
 	j = 0;
-	if (check_not_links(line1) && line1[0] != ' ')
+	if (check_not_links(line1) && line1[0] != ' ' && line1[0] != 'L')
 		j = room_name_end(otp, line1);//виправити для end???? //delete after do this func
 	else
 		ft_error("no valid name_end\n");
@@ -295,7 +346,7 @@ void	put_good_room(t_output *otp, char *line)
 	int		j;
 
 	j = 0;
-	if (check_not_links(line) && line[0] != ' ')
+	if (check_not_links(line) && line[0] != ' ' && line[0] != 'L')
 		j = room_name(otp, line);//виправити для всіх інших запис в структуру???? //delete after do this func
 	else
 		ft_error("no valid name\n");
@@ -337,6 +388,7 @@ void	find_rooms(t_read **read, t_output *otp)
 		ft_strdel(&line);
 	}
 	find_links(read, otp, line);
+	ft_strdel(&line);
 	// if (line == NULL)
 	// 	ft_error("emty line. no links");
 	// if (otp->number_room_start < 0 || otp->number_room_end < 0)

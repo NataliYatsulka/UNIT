@@ -31,6 +31,7 @@ typedef struct		s_read
 **	next
 **	nmb - порядковий номер
 **	name - name room
+**	name x y
 */
 
 typedef struct		s_room
@@ -43,12 +44,15 @@ typedef struct		s_room
 }					t_room;
 
 /*
-**	sgn - 
+**	name1-name2 
 */
 
 typedef struct		s_link
 {
-	char			sgn;
+	char			name1;
+	char			name2;
+	int				numb_link;
+	struct s_link	*nt;
 }					t_link;
 
 /*
@@ -63,7 +67,7 @@ typedef struct		s_output
 	int				number_room_start;
 	int				number_room_end;
 	struct s_room	*room;
-	
+	struct s_link	**link;
 	char	*test;
 	// char			*start;??
 	// int				x_start;
@@ -71,7 +75,6 @@ typedef struct		s_output
 	// char			*end;??
 	// int				x_end;
 	// int				y_end;
-
 }					t_output;
 
 int					main(void);
