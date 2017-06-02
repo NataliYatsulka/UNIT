@@ -52,12 +52,18 @@ void	write_read(t_read **read, char *line)
 	t_read	*ptr;
 
 	ptr = *read;
-	while (ptr->nxt)
-		ptr = ptr->nxt;
-	ptr->line = ft_strdup(line);
-	ptr->nxt = (t_read *)malloc(sizeof(t_read));
-	ptr->nxt->line = NULL;
-	ptr->nxt->nxt = NULL;
+	if (ptr)
+	{
+		while (ptr->nxt)
+			ptr = ptr->nxt;
+		ptr->nxt = (t_read *)ft_memalloc(sizeof(t_read));
+		ptr->nxt->line = ft_strdup(line);
+	}
+	else
+	{
+		*read = (t_read *)ft_memalloc(sizeof(t_read));
+		(*read)->line = ft_strdup(line);
+	}
 }
 
 ////////////////////
@@ -83,24 +89,58 @@ int		check_links(char *line)
 	return (0);
 }
 
-void	matrix_for_links(t_read *read)
+void	matrix_for_links(t_output *otp)
 {
 	int		j;
+	int		i;
 
 	j = -1;
-	read->link = (char **)malloc((read->room->numb + 1) * sizeof(char *));
-	if (!read->link)
-		ft_error("mall");
-	read->link[read->room->numb + 1] = NULL; 
-	while (++j < read->room->numb + 1)
+	otp->arr = (char **)malloc((otp->room->numb + 1)
+		* sizeof(char *));
+	if (!otp->arr)
+		ft_error("malloc for arrs");
+	otp->arr[otp->room->numb + 1] = NULL;
+	while (++j < otp->room->numb + 1)
+		otp->arr[j] = ft_strnew(otp->room->numb + 1);
+	i = -1;
+	while (++i < otp->room->numb + 1)
 	{
-	read->lin
+		j = -1;
+		while (++j < otp->room->numb + 1)
+			if (i == j)
+				otp->arr[i][j] = '2';
 	}
 }
 
-void	write_in_struct_links(t_link *link, char *line)
+int		check_1_links(t_output *otp, int i)
 {
+	t_room	*ptr;
 
+	ptr = otp->room;
+	while (ptr)
+	{
+		if (i == 1 && ft_strequ(ptr->name, otp->link->name1))
+			return (ptr->numb);
+		else if (i == 2 && ft_strequ(ptr->name, otp->link->name2))
+			return (ptr->numb);
+		ptr = ptr->next;
+	}
+	ft_error("no link with this name1 or name2");
+	return (0);
+}
+
+void	write_in_struct_links(t_output *otp, char *line)
+{
+	int		i;
+	int		j;
+	int		k;
+
+	k = ft_strlen(otp->link->name1);
+	otp->link->name1 = *ft_strsplit(line, '-');
+	otp->link->name2 = ft_strsub(line, k, ft_strlen(line) - k - 1);
+	i = check_1_links(otp, 1);
+	j = check_1_links(otp, 2);
+	// while (otp->)
 }
 
 void	read_name_links(t_read *read, t_output *otp, char *line)
@@ -111,10 +151,12 @@ void	read_name_links(t_read *read, t_output *otp, char *line)
 	if (!(link = (t_link *)malloc(sizeof(t_link))))
 		return ;
 	line1 = NULL;
+	matrix_for_links(otp);
+	/*
+	**	поставити в одну функцію наступні три рядки
+	*/
+	write_in_struct_links(otp, line);
 	write_read(&read, line);
-	matrix_for_links(read);
-	write_in_struct_links(link, line);
-	otp->test = NULL;//delete if no need in struct otp
 	while (get_next_line(0, &line1) && (line1[0] == '#'))
 	{
 		if (line1[0] == '#' && line1[1] == '#')
@@ -176,28 +218,45 @@ void	create_name_room(t_output *otp)
 	t_room	*tmp;
 
 	tmp = otp->room;
-	while (tmp->next)
-		tmp = tmp->next;
-	if (!(tmp->next = (t_room *)malloc(sizeof(t_room))))
-		return ;
-	tmp->next->name = NULL;
-	//виправити для проходження по-порядку tmp->next->numb
-	tmp->next->numb = 0;
-	tmp->next->x = 0;
-	tmp->next->y = 0;
+	if (tmp)
+	{
+		while (tmp->next)
+			tmp = tmp->next;
+		if (!(tmp->next = (t_room *)ft_memalloc(sizeof(t_room))))
+			return ;
+	}
+	else
+	{
+		otp->room = (t_room *)ft_memalloc(sizeof(t_room));
+		otp->room->numb = -1;
+	}
+	// tmp->next->name = NULL;
+	// //виправити для проходження по-порядку tmp->next->numb
+	// tmp->next->numb = 0;
+	// tmp->next->x = 0;
+	// tmp->next->y = 0;
+
 }
 
 int		room_name(t_output *otp, char *line1)
 {
 	int		i;
+	t_room	*ptr;
+	// t_room	*q;
 
 	i = -1;
+
+	
 	create_name_room(otp);
-	while (line1[++i] && !otp->room->name)
+	ptr = otp->room;
+	while (line1[++i])// && !otp->room->next->name)
 	{
 		if (line1[i] == ' ')
 		{
-			otp->room->name = ft_strsub(line1, 0, i);
+			while (ptr->next)
+				ptr = ptr->next;
+			ptr->name = ft_strsub(line1, 0, i);
+			// ptr->numb = 
 			break ;
 		}
 		if (line1[i] == '-')
@@ -209,18 +268,28 @@ int		room_name(t_output *otp, char *line1)
 int		room_name_start(t_output *otp, char *line1)
 {
 	int		i;
+	t_room	*ptr;
 
 	i = -1;
+	ptr = otp->room;
 	create_name_room(otp);
 	if (otp->number_room_start > -1)
 		ft_error("start two times\n");
-	while (line1[++i] && !otp->room->name)
+	while (line1[++i])// && !otp->room->name)
 	{
+		// if (line1[i] == ' ')
+		// {
+		// 	otp->room->name = ft_strsub(line1, 0, i);
+		// 	otp->number_room_start = otp->room->numb;
+		// 	otp->room->numb++;
+		// 	break ;
+		// }
 		if (line1[i] == ' ')
 		{
-			otp->room->name = ft_strsub(line1, 0, i);
-			otp->number_room_start = otp->room->numb;
-			otp->room->numb++;
+			while (ptr->next)
+				ptr = ptr->next;
+			ptr->name = ft_strsub(line1, 0, i);
+			otp->number_room_start = ptr->numb;
 			break ;
 		}
 		if (line1[i] == '-')
@@ -232,18 +301,28 @@ int		room_name_start(t_output *otp, char *line1)
 int		room_name_end(t_output *otp, char *line1)
 {
 	int		i;
+	t_room	*ptr;
 
 	i = -1;
+	ptr = otp->room;
 	create_name_room(otp);
 	if (otp->number_room_end > -1)
 		ft_error("end two times\n");
-	while (line1[++i] && !otp->room->name)
+	while (line1[++i])// && !otp->room->name)
 	{
+		// if (line1[i] == ' ')
+		// {
+		// 	otp->room->name = ft_strsub(line1, 0, i);
+		// 	otp->number_room_end = otp->room->numb;
+		// 	otp->room->numb++;
+		// 	break ;
+		// }
 		if (line1[i] == ' ')
 		{
-			otp->room->name = ft_strsub(line1, 0, i);
-			otp->number_room_end = otp->room->numb;
-			otp->room->numb++;
+			while (ptr->next)
+				ptr = ptr->next;
+			ptr->name = ft_strsub(line1, 0, i);
+			otp->number_room_end = ptr->numb;
 			break ;
 		}
 		if (line1[i] == '-')
@@ -387,7 +466,7 @@ void	find_rooms(t_read **read, t_output *otp)
 		}
 		ft_strdel(&line);
 	}
-	find_links(read, otp, line);
+	// find_links(read, otp, line);
 	ft_strdel(&line);
 	// if (line == NULL)
 	// 	ft_error("emty line. no links");
@@ -467,19 +546,20 @@ int		main(void)
 	// t_read		*tmp;
 
 	// init_struct(&out);
-	if (!(read = (t_read *)malloc(sizeof(t_read))))
+	// if (!(read = (t_read *)malloc(sizeof(t_read))))
+	// 	return (-1);
+	// read->line = NULL;
+	// read->nxt = NULL;
+	read = NULL;
+	if (!(out = (t_output *)ft_memalloc(sizeof(t_output))))
 		return (-1);
-	read->line = NULL;
-	read->nxt = NULL;
-	if (!(out = (t_output *)malloc(sizeof(t_output))))
-		return (-1);
-	if (!(out->room = (t_room *)malloc(sizeof(t_room))))
-		return (-1);
-	out->room->name = NULL;
-	out->room->numb = 0;
-	out->room->x = 0;
-	out->room->y = 0;
-	out->room->next = NULL;
+	// if (!(out->room = (t_room *)malloc(sizeof(t_room))))
+	// 	return (-1);
+	// out->room->name = NULL;
+	// out->room->numb = -1;
+	// out->room->x = 0;
+	// out->room->y = 0;
+	// out->room->next = NULL;
 
 	find_numb_ants(&read, out);
 	// tmp = read;
