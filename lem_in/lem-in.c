@@ -33,11 +33,6 @@ void	ft_error(char *s)
 	exit(1);
 }
 
-// void	delete_struct(t_read **read, t_output **out)
-// {
-
-// }
-
 void 	write_input_on_console(t_read *read)
 {
 	while (read)
@@ -66,11 +61,11 @@ void	write_read(t_read **read, char *line)
 	}
 }
 
-////////////////////
-
+////////////////////////////////////////////////////
 /*
 **	block LINKS
 */
+/////////////////////////////////////////////////////
 
 int		check_links(char *line)
 {
@@ -93,22 +88,39 @@ void	matrix_for_links(t_output *otp)
 {
 	int		j;
 	int		i;
+	int		k;
+	t_room	*ptr;
 
+	k = 0;
+	ptr = otp->room;
 	j = -1;
-	otp->arr = (char **)malloc((otp->room->numb + 1)
+	while (ptr)
+		ptr = ptr->next;
+	k = ptr->numb;
+	otp->arr = (char **)malloc((k + 1)
 		* sizeof(char *));
 	if (!otp->arr)
 		ft_error("malloc for arrs");
-	otp->arr[otp->room->numb + 1] = NULL;
-	while (++j < otp->room->numb + 1)
-		otp->arr[j] = ft_strnew(otp->room->numb + 1);
+	otp->arr[k + 1] = NULL;
+
+	while (++j < k + 1)
+		otp->arr[j] = ft_strnew(k + 1);
 	i = -1;
-	while (++i < otp->room->numb + 1)
+	while (++i < k + 1)
 	{
 		j = -1;
-		while (++j < otp->room->numb + 1)
+		while (++j < k + 1)
 			if (i == j)
 				otp->arr[i][j] = '2';
+	}
+
+	i = -1;
+	while (++i < k + 1)
+	{
+		j = -1;
+		while (++j < k + 1)
+				printf("%d", otp->arr[i][j]);
+		printf("\n");
 	}
 }
 
@@ -192,9 +204,11 @@ void	find_links(t_read **read, t_output *otp, char *line)
 	}
 }
 
+//////////////////////////////////////////////////////
 /*
 **	block ROOM
 */
+//////////////////////////////////////////////////////
 
 int		check_not_links(char *line)
 {
@@ -216,40 +230,33 @@ int		check_not_links(char *line)
 void	create_name_room(t_output *otp)
 {
 	t_room	*tmp;
+	int		num;
 
 	tmp = otp->room;
 	if (tmp)
 	{
 		while (tmp->next)
+		{
+			num++;
 			tmp = tmp->next;
+		}
 		if (!(tmp->next = (t_room *)ft_memalloc(sizeof(t_room))))
 			return ;
+		tmp->next->numb = num;
 	}
 	else
-	{
 		otp->room = (t_room *)ft_memalloc(sizeof(t_room));
-		otp->room->numb = -1;
-	}
-	// tmp->next->name = NULL;
-	// //виправити для проходження по-порядку tmp->next->numb
-	// tmp->next->numb = 0;
-	// tmp->next->x = 0;
-	// tmp->next->y = 0;
-
 }
 
 int		room_name(t_output *otp, char *line1)
 {
 	int		i;
 	t_room	*ptr;
-	// t_room	*q;
 
 	i = -1;
-
-	
 	create_name_room(otp);
 	ptr = otp->room;
-	while (line1[++i])// && !otp->room->next->name)
+	while (line1[++i])
 	{
 		if (line1[i] == ' ')
 		{
@@ -271,19 +278,12 @@ int		room_name_start(t_output *otp, char *line1)
 	t_room	*ptr;
 
 	i = -1;
-	ptr = otp->room;
 	create_name_room(otp);
+	ptr = otp->room;
 	if (otp->number_room_start > -1)
 		ft_error("start two times\n");
-	while (line1[++i])// && !otp->room->name)
+	while (line1[++i])
 	{
-		// if (line1[i] == ' ')
-		// {
-		// 	otp->room->name = ft_strsub(line1, 0, i);
-		// 	otp->number_room_start = otp->room->numb;
-		// 	otp->room->numb++;
-		// 	break ;
-		// }
 		if (line1[i] == ' ')
 		{
 			while (ptr->next)
@@ -304,19 +304,12 @@ int		room_name_end(t_output *otp, char *line1)
 	t_room	*ptr;
 
 	i = -1;
-	ptr = otp->room;
 	create_name_room(otp);
+	ptr = otp->room;
 	if (otp->number_room_end > -1)
 		ft_error("end two times\n");
-	while (line1[++i])// && !otp->room->name)
+	while (line1[++i])
 	{
-		// if (line1[i] == ' ')
-		// {
-		// 	otp->room->name = ft_strsub(line1, 0, i);
-		// 	otp->number_room_end = otp->room->numb;
-		// 	otp->room->numb++;
-		// 	break ;
-		// }
 		if (line1[i] == ' ')
 		{
 			while (ptr->next)
@@ -375,7 +368,7 @@ void	put_coord_end(t_output *otp, char *line1)
 
 	j = 0;
 	if (check_not_links(line1) && line1[0] != ' ' && line1[0] != 'L')
-		j = room_name_end(otp, line1);//виправити для end???? //delete after do this func
+		j = room_name_end(otp, line1);
 	else
 		ft_error("no valid name_end\n");
 	if (line1[j] == ' ' && line1[j + 1])
@@ -426,7 +419,7 @@ void	put_good_room(t_output *otp, char *line)
 
 	j = 0;
 	if (check_not_links(line) && line[0] != ' ' && line[0] != 'L')
-		j = room_name(otp, line);//виправити для всіх інших запис в структуру???? //delete after do this func
+		j = room_name(otp, line);
 	else
 		ft_error("no valid name\n");
 	if (line[j] == ' ' && line[j + 1])
@@ -466,15 +459,8 @@ void	find_rooms(t_read **read, t_output *otp)
 		}
 		ft_strdel(&line);
 	}
-	// find_links(read, otp, line);
+	find_links(read, otp, line);
 	ft_strdel(&line);
-	// if (line == NULL)
-	// 	ft_error("emty line. no links");
-	// if (otp->number_room_start < 0 || otp->number_room_end < 0)
-	// 	ft_error("no end or start");
-	// if (otp->room->numb < 2)
-	// 	ft_error("no rooms between start - end");
-	// if (line != NULL)
 }
 
 /*//////////////////////////////////////////////////////////////////////////////
@@ -542,31 +528,13 @@ int		main(void)
 {
 	t_read		*read;
 	t_output	*out;
-	// t_room		*room;
-	// t_read		*tmp;
 
 	// init_struct(&out);
-	// if (!(read = (t_read *)malloc(sizeof(t_read))))
-	// 	return (-1);
-	// read->line = NULL;
-	// read->nxt = NULL;
 	read = NULL;
 	if (!(out = (t_output *)ft_memalloc(sizeof(t_output))))
 		return (-1);
-	// if (!(out->room = (t_room *)malloc(sizeof(t_room))))
-	// 	return (-1);
-	// out->room->name = NULL;
-	// out->room->numb = -1;
-	// out->room->x = 0;
-	// out->room->y = 0;
-	// out->room->next = NULL;
-
 	find_numb_ants(&read, out);
-	// tmp = read;
-	// read = read->nxt;
-	// ft_strdel((char **)&tmp);
 	find_rooms(&read, out);//, out);
-
 	write_input_on_console(read);
 	// delete_struct(&read, &out);
 	while (1);

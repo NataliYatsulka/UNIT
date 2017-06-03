@@ -63,13 +63,12 @@ typedef struct		s_link
 typedef struct		s_output
 {
 	int				ants;
-	
 	int				number_room_start;
 	int				number_room_end;
 	struct s_room	*room;
 	struct s_link	*link;
 	char			**arr;
-	char	*test;
+	// char	*test;
 	// char			*start;??
 	// int				x_start;
 	// int				y_start;
