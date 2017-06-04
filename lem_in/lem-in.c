@@ -91,18 +91,18 @@ void	matrix_for_links(t_output *otp)
 	int		k;
 	t_room	*ptr;
 
-	k = 0;
 	ptr = otp->room;
-	j = -1;
-	while (ptr)
+	k = 0;
+	while (ptr->next)
+	{
+		k++;
 		ptr = ptr->next;
-	k = ptr->numb;
-	otp->arr = (char **)malloc((k + 1)
-		* sizeof(char *));
+	}
+	j = -1;
+	otp->arr = (char **)malloc((k + 1) * sizeof(char *));
 	if (!otp->arr)
 		ft_error("malloc for arrs");
 	otp->arr[k + 1] = NULL;
-
 	while (++j < k + 1)
 		otp->arr[j] = ft_strnew(k + 1);
 	i = -1;
@@ -111,33 +111,31 @@ void	matrix_for_links(t_output *otp)
 		j = -1;
 		while (++j < k + 1)
 			if (i == j)
-				otp->arr[i][j] = '2';
+				otp->arr[i][j] = 2;
 	}
-
-	i = -1;
-	while (++i < k + 1)
-	{
-		j = -1;
-		while (++j < k + 1)
-				printf("%d", otp->arr[i][j]);
-		printf("\n");
-	}
+	//	test delete
+	// i = -1;
+	// while (++i < k + 1)
+	// {
+	// 	j = -1;
+	// 	while (++j < k + 1)
+	// 		printf("%d", otp->arr[i][j]);
+	// 	printf("\n");
+	// }
 }
 
-int		check_1_links(t_output *otp, int i)
+int		get_numb_room_for_link(t_output *otp, char *s)
 {
 	t_room	*ptr;
 
 	ptr = otp->room;
 	while (ptr)
 	{
-		if (i == 1 && ft_strequ(ptr->name, otp->link->name1))
-			return (ptr->numb);
-		else if (i == 2 && ft_strequ(ptr->name, otp->link->name2))
+		if (ft_strequ(ptr->name, s))
 			return (ptr->numb);
 		ptr = ptr->next;
 	}
-	ft_error("no link with this name1 or name2");
+	ft_error("no link with this name\n");
 	return (0);
 }
 
@@ -146,17 +144,27 @@ void	write_in_struct_links(t_output *otp, char *line)
 	int		i;
 	int		j;
 	int		k;
+	char	**name_link;
 
-	k = ft_strlen(otp->link->name1);
-	otp->link->name1 = *ft_strsplit(line, '-');
-	otp->link->name2 = ft_strsub(line, k, ft_strlen(line) - k - 1);
-	i = check_1_links(otp, 1);
-	j = check_1_links(otp, 2);
-	// while (otp->)
+	k = 0;
+	name_link = ft_strsplit(line, '-');
+	while (name_link[k])
+		k++;
+	if (k != 2)
+		ft_error("no 2 link in line\n");
+	i = get_numb_room_for_link(otp, name_link[0]);
+	j = get_numb_room_for_link(otp, name_link[1]);
+	if (i != j)
+	{
+		otp->arr[i][j] = 1;
+		otp->arr[j][i] = 1;
+	}
+	ft_strdel(name_link);
 }
 
 void	read_name_links(t_read *read, t_output *otp, char *line)
 {
+	int	k = 2;int i,j;
 	char	*line1;
 	t_link	*link;
 
@@ -169,7 +177,7 @@ void	read_name_links(t_read *read, t_output *otp, char *line)
 	*/
 	write_in_struct_links(otp, line);
 	write_read(&read, line);
-	while (get_next_line(0, &line1) && (line1[0] == '#'))
+	while (get_next_line(0, &line1))
 	{
 		if (line1[0] == '#' && line1[1] == '#')
 		{
@@ -180,12 +188,22 @@ void	read_name_links(t_read *read, t_output *otp, char *line)
 		}
 		else if (line1[0] == '#')
 			write_read(&read, line1);
-		else if (1)
+		else
 		{
-			
+			if (*line1 == '\0')
+				break ;
+			write_in_struct_links(otp, line1);
 			write_read(&read, line1);
 		}
 		ft_strdel(&line1);
+	}
+	i = -1;
+	while (++i < k + 1)
+	{
+		j = -1;
+		while (++j < k + 1)
+			printf("%d", otp->arr[i][j]);
+		printf("\n");
 	}
 }
 
@@ -232,6 +250,7 @@ void	create_name_room(t_output *otp)
 	t_room	*tmp;
 	int		num;
 
+	num = 0;
 	tmp = otp->room;
 	if (tmp)
 	{
@@ -242,7 +261,7 @@ void	create_name_room(t_output *otp)
 		}
 		if (!(tmp->next = (t_room *)ft_memalloc(sizeof(t_room))))
 			return ;
-		tmp->next->numb = num;
+		tmp->next->numb = num + 1;
 	}
 	else
 		otp->room = (t_room *)ft_memalloc(sizeof(t_room));
@@ -263,7 +282,6 @@ int		room_name(t_output *otp, char *line1)
 			while (ptr->next)
 				ptr = ptr->next;
 			ptr->name = ft_strsub(line1, 0, i);
-			// ptr->numb = 
 			break ;
 		}
 		if (line1[i] == '-')
