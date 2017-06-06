@@ -63,6 +63,17 @@ void	write_read(t_read **read, char *line)
 
 ////////////////////////////////////////////////////
 /*
+**	algorithm
+*/
+////////////////////////////////////////////////////
+
+void	algo_lemin(t_output *otp)
+{
+	
+}
+
+////////////////////////////////////////////////////
+/*
 **	block LINKS
 */
 /////////////////////////////////////////////////////
@@ -99,29 +110,11 @@ void	matrix_for_links(t_output *otp)
 		ptr = ptr->next;
 	}
 	j = -1;
-	otp->arr = (char **)malloc((k + 1) * sizeof(char *));
-	if (!otp->arr)
+	if (!(otp->arr = (char **)malloc((k + 1) * sizeof(char *))))
 		ft_error("malloc for arrs");
 	otp->arr[k + 1] = NULL;
 	while (++j < k + 1)
 		otp->arr[j] = ft_strnew(k + 1);
-	i = -1;
-	while (++i < k + 1)
-	{
-		j = -1;
-		while (++j < k + 1)
-			if (i == j)
-				otp->arr[i][j] = 2;
-	}
-	//	test delete
-	// i = -1;
-	// while (++i < k + 1)
-	// {
-	// 	j = -1;
-	// 	while (++j < k + 1)
-	// 		printf("%d", otp->arr[i][j]);
-	// 	printf("\n");
-	// }
 }
 
 int		get_numb_room_for_link(t_output *otp, char *s)
@@ -144,39 +137,46 @@ void	write_in_struct_links(t_output *otp, char *line)
 	int		i;
 	int		j;
 	int		k;
-	char	**name_link;
+	char	**arr_name_link;
 
 	k = 0;
-	name_link = ft_strsplit(line, '-');
-	while (name_link[k])
+	arr_name_link = ft_strsplit(line, '-');
+	while (arr_name_link[k])
 		k++;
 	if (k != 2)
 		ft_error("no 2 link in line\n");
-	i = get_numb_room_for_link(otp, name_link[0]);
-	j = get_numb_room_for_link(otp, name_link[1]);
+	i = get_numb_room_for_link(otp, arr_name_link[0]);
+	j = get_numb_room_for_link(otp, arr_name_link[1]);
 	if (i != j)
 	{
 		otp->arr[i][j] = 1;
 		otp->arr[j][i] = 1;
 	}
-	ft_strdel(name_link);
+	ft_strdel(arr_name_link);
 }
 
 void	read_name_links(t_read *read, t_output *otp, char *line)
 {
-	int	k = 2;int i,j;
+	int	k = 0;int i,j;//delete
 	char	*line1;
-	t_link	*link;
+	// t_link	*link;
+	t_room	*ptr;//delete
+	t_room	*tmp;//delete
 
-	if (!(link = (t_link *)malloc(sizeof(t_link))))
-		return ;
-	line1 = NULL;
-	matrix_for_links(otp);
-	/*
-	**	поставити в одну функцію наступні три рядки
-	*/
-	write_in_struct_links(otp, line);
-	write_read(&read, line);
+	ptr = otp->room;//delete
+	while (ptr)
+	{
+		tmp = ptr;
+		ptr = ptr->next;
+	}
+	k = tmp->numb;
+	//delete
+	// if (!(link = (t_link *)malloc(sizeof(t_link))))
+	// 	return ;
+	// line1 = NULL;//maybe delete?????????
+	// matrix_for_links(otp);
+	// write_in_struct_links(otp, line);
+	// write_read(&read, line);
 	while (get_next_line(0, &line1))
 	{
 		if (line1[0] == '#' && line1[1] == '#')
@@ -197,7 +197,7 @@ void	read_name_links(t_read *read, t_output *otp, char *line)
 		}
 		ft_strdel(&line1);
 	}
-	i = -1;
+	i = -1;//delete
 	while (++i < k + 1)
 	{
 		j = -1;
@@ -216,7 +216,12 @@ void	find_links(t_read **read, t_output *otp, char *line)
 	if (line != NULL)
 	{
 		if (check_links(line))
+		{
+			matrix_for_links(otp);
+			write_in_struct_links(otp, line);
+			write_read(read, line);
 			read_name_links(*read, otp, line);
+		}
 		else
 			ft_error("smth went wrong in func find_links");
 	}
@@ -342,14 +347,10 @@ int		room_name_end(t_output *otp, char *line1)
 	return (i);
 }
 
-/*
-**	перевірка наступного рядка після команди start
-*/
-
 int		valid_numb(char *line, int i)
 {
 	i++;
-	while (line[i] && (line[i] != ' '))// || line[i + 1] != '\0'))
+	while (line[i] && (line[i] != ' '))
 	{
 		if (ft_isdigit(line[i]))
 			i++;
@@ -535,25 +536,18 @@ void	find_numb_ants(t_read **read, t_output *otp)
 	}
 }
 
-// void	init_struct(t_output **out)
-// {
-// 	if (!(*out = (t_output *)malloc(sizeof(t_output))))
-// 		ft_error("malloc 1");
-// 	(*out)->room = NULL;
-// }
-
 int		main(void)
 {
 	t_read		*read;
 	t_output	*out;
 
-	// init_struct(&out);
 	read = NULL;
 	if (!(out = (t_output *)ft_memalloc(sizeof(t_output))))
 		return (-1);
 	find_numb_ants(&read, out);
-	find_rooms(&read, out);//, out);
+	find_rooms(&read, out);
 	write_input_on_console(read);
+	algo_lemin(out);
 	// delete_struct(&read, &out);
 	while (1);
 	return (1);
