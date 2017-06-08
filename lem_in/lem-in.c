@@ -61,16 +61,43 @@ void	write_read(t_read **read, char *line)
 	}
 }
 
+///////////////////////////////////////////////////
+/*
+**	write ants
+*/
+///////////////////////////////////////////////////
+
+void	print_ants_way(t_output *otp)
+{
+	int		i;
+	t_room	*ptr;
+
+	ptr = otp->room;
+	while (ptr)
+	{
+		if (ptr->numb == otp->number_room_end)
+			break;
+		ptr = ptr->next;
+	}
+	i = 1;
+	while (i <= otp->ants)
+	{
+		ft_printf("L%d-%s", i, ptr->name);
+		(i == otp->ants) ? (ft_printf("\n")) : (ft_printf(" "));
+		i++;
+	}
+}
+
 ////////////////////////////////////////////////////
 /*
 **	algorithm
 */
 ////////////////////////////////////////////////////
 
-void	algo_lemin(t_output *otp)
-{
+// void	algo_lemin(t_output *otp)
+// {
 	
-}
+// }
 
 ////////////////////////////////////////////////////
 /*
@@ -98,7 +125,7 @@ int		check_links(char *line)
 void	matrix_for_links(t_output *otp)
 {
 	int		j;
-	int		i;
+	// int		i;
 	int		k;
 	t_room	*ptr;
 
@@ -155,7 +182,7 @@ void	write_in_struct_links(t_output *otp, char *line)
 	ft_strdel(arr_name_link);
 }
 
-void	read_name_links(t_read *read, t_output *otp, char *line)
+void	read_name_links(t_read *read, t_output *otp)//, char *line)
 {
 	int	k = 0;int i,j;//delete
 	char	*line1;
@@ -220,7 +247,7 @@ void	find_links(t_read **read, t_output *otp, char *line)
 			matrix_for_links(otp);
 			write_in_struct_links(otp, line);
 			write_read(read, line);
-			read_name_links(*read, otp, line);
+			read_name_links(*read, otp);//, line);
 		}
 		else
 			ft_error("smth went wrong in func find_links");
@@ -547,8 +574,11 @@ int		main(void)
 	find_numb_ants(&read, out);
 	find_rooms(&read, out);
 	write_input_on_console(read);
-	algo_lemin(out);
+	if (out->arr[out->number_room_start][out->number_room_end] == 1)
+		print_ants_way(out);
+	// else
+	// 	algo_lemin(out);
 	// delete_struct(&read, &out);
-	while (1);
+	// while (1);
 	return (1);
 }
