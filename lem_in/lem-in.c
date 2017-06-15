@@ -40,6 +40,7 @@ void 	write_input_on_console(t_read *read)
 		printf("%s\n", read->line);
 		read = read->nxt;
 	}
+	printf("\n");
 }
 
 void	write_read(t_read **read, char *line)
@@ -94,10 +95,80 @@ void	print_ants_way(t_output *otp)
 */
 ////////////////////////////////////////////////////
 
-// void	algo_lemin(t_output *otp)
+// void	write_new_way_links(t_output *otp, int count)
 // {
-	
+
 // }
+
+void	func_set(t_output *otp, int j, int k)
+{
+	int		l;
+
+	l = -1;
+	while (++l < otp->num_rooms)
+	{
+		if (k == 5 && otp->arr[l][j] == 1)
+		{
+			otp->arr[l][j] = k;
+			otp->arr[j][l] = k;
+		}
+		else if (k == 1 && otp->arr[l][j] == 5)
+		{
+			otp->arr[l][j] = k;
+			otp->arr[j][l] = k;
+		}
+	}
+}
+
+void	copy_link(t_output *otp, int count)
+{
+	t_link	*ptr;
+
+	if (!(otp->link))
+	{
+		if (!(otp->link = (t_link *)ft_memalloc(sizeof(t_link))))
+			ft_error("malloc link\n");
+		ptr = otp->link;
+	}
+	else
+	{
+		ptr = otp->link;
+		while (ptr->next)
+			ptr = ptr->next;
+		if (!(ptr->next = (t_link *)ft_memalloc(sizeof(t_link))))
+			ft_error("malloc link2\n");
+		ptr = ptr->next;
+	}
+	if (!(ptr->arlink = (int *)malloc(count * sizeof(int))))
+		ft_error("malloc link3\n");
+	ptr->arlink = ft_memcpy(ptr->arlink, otp->tmp, count * sizeof(int));
+	ptr->len = count;
+}
+
+
+void	algo_lemin(t_output *otp, int i, int count)
+{
+	int		j;
+
+	j = 0;
+	otp->tmp[count] = i;
+	while (otp->arr[i][j])
+	{
+		if (j == otp->number_room_end && otp->arr[i][j] == 1)
+		{
+			otp->tmp[count + 1] = j;
+			copy_link(otp, count + 2);
+			
+		}
+		else if (otp->arr[i][j] == 1)
+		{
+			func_set(otp, j, 5);
+			algo_lemin(otp, j, count + 1);
+			func_set(otp, j, 1);
+		}
+		j++;
+	}
+}
 
 ////////////////////////////////////////////////////
 /*
@@ -125,7 +196,6 @@ int		check_links(char *line)
 void	matrix_for_links(t_output *otp)
 {
 	int		j;
-	// int		i;
 	int		k;
 	t_room	*ptr;
 
@@ -142,6 +212,9 @@ void	matrix_for_links(t_output *otp)
 	otp->arr[k + 1] = NULL;
 	while (++j < k + 1)
 		otp->arr[j] = ft_strnew(k + 1);
+	j = -1;
+	while (++j < k + 1)
+		otp->arr[j] = ft_memset(otp->arr[j], 7, k + 1);
 }
 
 int		get_numb_room_for_link(t_output *otp, char *s)
@@ -567,6 +640,8 @@ int		main(void)
 {
 	t_read		*read;
 	t_output	*out;
+	t_room		*tmp;
+	int			i;
 
 	read = NULL;
 	if (!(out = (t_output *)ft_memalloc(sizeof(t_output))))
@@ -574,10 +649,32 @@ int		main(void)
 	find_numb_ants(&read, out);
 	find_rooms(&read, out);
 	write_input_on_console(read);
+	tmp = out->room->next;
+	while (tmp->next)
+		tmp = tmp->next;
+	out->num_rooms = tmp->numb + 1;
+	out->tmp = ft_strnew(out->num_rooms);
 	if (out->arr[out->number_room_start][out->number_room_end] == 1)
 		print_ants_way(out);
-	// else
-	// 	algo_lemin(out);
+	else
+	{
+		algo_lemin(out, out->number_room_start, 0);
+	}
+	//delete
+	int a = -1;
+	t_link *ptr;
+	ptr = out->link;
+	while (ptr)
+	{
+		a = -1;
+		ft_printf("links\n");
+		while (++a < out->link->len)
+		{
+			ft_printf("%d", ptr->arlink[a]);
+		}
+		ft_printf("\n");
+		ptr = ptr->next;
+	}
 	// delete_struct(&read, &out);
 	// while (1);
 	return (1);
