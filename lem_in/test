@@ -52,6 +52,15 @@
 6-7
 
 
+71177777
+17111777
+11717177
+71171177
+71717111
+77111717
+77771171
+77771717
+
 straight 1 link a-b (c is no need)
 5
 ##start
@@ -61,11 +70,14 @@ straight 1 link a-b (c is no need)
 2 5 7
 0-1
 1-2
+0-2
 
 two links
 5
+0 8 9
 ##start
-0 2 5
+5 2 5
+4 9 1
 1 6 5
 2 9 8
 ##end
@@ -74,6 +86,10 @@ two links
 1-3
 0-2
 2-3
+2-4
+0-5
+1-2
+
 
 straight 1 link a-b-c
 12
@@ -88,14 +104,19 @@ b-c
 
 eroor for no links between start and end
 12
+0 6 5
 ##start
 1 2 3
-4 5 6
+4 9 6
 ##end
 2 5 7
 3 0 9
+5 9 8
 1-4
 2-3
+2-5
+0-4
+1-4
 
 
 
