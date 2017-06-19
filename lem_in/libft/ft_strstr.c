@@ -19,8 +19,8 @@ char		*ft_strstr(const char *big, const char *little)
 	int		counter;
 
 	i = 0;
-	j = 0;
-	counter = 0;
+//	j = 0;
+//	counter = 0;
 	if (little[0] == '\0')
 		return ((char *)&big[0]);
 	while (big[i])

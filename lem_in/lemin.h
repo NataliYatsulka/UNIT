@@ -68,7 +68,7 @@ typedef struct		s_output
 	int				number_room_end;
 	struct s_room	*room;
 	struct s_link	*link;
-	char			**arr;
+	int			**arr;
 	// char	*test;
 	// char			*start;??
 	// int				x_start;
