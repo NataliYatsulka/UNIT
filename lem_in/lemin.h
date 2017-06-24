@@ -50,6 +50,7 @@ typedef struct		s_room
 typedef struct		s_link
 {
 	int				*arlink;
+	int				numblink;
 	int				len;
 	struct s_link	*next;
 }					t_link;
@@ -69,6 +70,7 @@ typedef struct		s_output
 	struct s_room	*room;
 	struct s_link	*link;
 	int				**arr;
+	char			**mas;
 	// char	*test;
 	// char			*start;??
 	// int				x_start;

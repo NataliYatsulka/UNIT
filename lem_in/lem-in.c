@@ -89,11 +89,78 @@ void	print_ants_way(t_output *otp)
 	}
 }
 
+void	convert_num_to_rooms_name(t_output *otp, t_link *path)
+{
+	int		i;
+	char	**s;
+	t_room	*ptr;
+
+	i = 0;
+	s = (char **)ft_memalloc(sizeof(char *) * (path->len));
+	while (++i < path->len)
+	{
+		ptr = otp->room;
+		while (ptr && ptr->numb != path->arlink[i])
+			ptr = ptr->next;
+		s[i] = ptr->name;
+	}
+	otp->mas = s;
+}
+
+void	print_one_way(t_output *otp, int nbr)
+{
+	int		i;
+	int		j;
+	t_room	*ptr;
+	t_link	*tmp;
+
+	tmp = otp->link;
+	while (tmp)
+	{
+		if (tmp->numblink == nbr)
+			break ;
+		tmp = tmp->next;
+	}
+	convert_num_to_rooms_name(otp, tmp);
+	i = 0;
+	while (++i <= (otp->ants + tmp->len - 1))
+	{
+		j = i - tmp->len + 1;
+		while (++j <= i)
+		{
+			if (j <= otp->ants && j > 0)
+				ft_printf("L%d-%s ", j, otp->mas[i - j + 1]);
+		}
+		ft_printf("\n");
+	}
+}
+
 ////////////////////////////////////////////////////
 /*
-**	algorithm
+**	output the ants-way
 */
 ////////////////////////////////////////////////////
+
+int		find_less_way(t_output *otp)
+{
+	int		nr;
+	int		i;
+	t_link	*ptr;
+
+	ptr = otp->link;
+	i = ptr->len;
+	nr = 0;
+	while (ptr)
+	{
+		if (i > ptr->len)
+		{
+			i = ptr->len;
+			nr = ptr->numblink;
+		}
+		ptr = ptr->next;
+	}
+	return (nr);
+}
 
 int		max_numb_way(t_output *otp)
 {
@@ -120,41 +187,30 @@ int		max_numb_way(t_output *otp)
 
 void	find_best_way(t_output *otp)
 {
+	int		k;
+
+	if (max_numb_way(otp) == 0)
+		ft_error("ERROR  no way\n");
 	if (max_numb_way(otp) == 1)
-		
-	ft_printf("num = %d\n", num);
+	{
+		print_one_way(otp, find_less_way(otp));
+	}
+	// else
+	// 	print_more_one_ways(otp);
+		ft_printf("num = %d; k = %d\n", max_numb_way(otp), find_less_way(otp));
 }
+
+////////////////////////////////////////////////////
+/*
+**	algorithm
+*/
+////////////////////////////////////////////////////
 
 void	func_set(t_output *otp, int j, int k)
 {
 	int		l;
 
 	l = -1;
-
-	// int	i;//delete
-	// int q = 0;
-	// int w = 0;
-
-	// t_room	*ptr;//delete
-	// t_room	*tmp;//delete
-
-	// ptr = otp->room;//delete
-	// while (ptr->next)
-	// {
-	// 	tmp = ptr;
-	// 	ptr = ptr->next;
-	// }
-	// w = tmp->numb;
-	// i = -1;//delete
-	// while (++i < w + 1)
-	// {
-	// 	q = -1;
-	// 	printf("%d_", i);
-	// 	while (++q < w + 1)
-	// 		printf("%d", otp->arr[i][q]);
-	// 	printf("\n");
-	// }
-// printf("%d\n", otp->arr[0][0]);
 	while (++l < otp->num_rooms)
 	{
 		if (k == 5 && otp->arr[l][j] == 1)
@@ -177,10 +233,11 @@ void	copy_link(t_output *otp, int count)
 	else
 	{
 		ptr = otp->link;
-		while (ptr && ptr->next)
+		while (ptr->next)
 			ptr = ptr->next;
 		if (!(ptr->next = (t_link *)ft_memalloc(sizeof(t_link))))
 			ft_error("malloc link2\n");
+		ptr->next->numblink = ptr->numblink + 1;
 		ptr = ptr->next;
 	}
 	if (!(ptr->arlink = (int *)ft_memalloc(count * sizeof(int))))
@@ -188,7 +245,6 @@ void	copy_link(t_output *otp, int count)
 	ptr->arlink = ft_memcpy(ptr->arlink, otp->tmp, count * sizeof(int));
 	ptr->len = count;
 }
-
 
 void	algo_lemin(t_output *otp, int i, int count)
 {
@@ -694,7 +750,7 @@ int		main(void)
 	// int			i;
 
 	read = NULL;
-	// ft_printf("%znwllw%10d", 12345678);
+	// ft_printf("%10hh.lld", 12345678);
 	// if (!(out = (t_output *)malloc(sizeof(t_output))))
 	// 	return (-1);
 	out.room = NULL;
@@ -727,7 +783,7 @@ int		main(void)
 	while (ptr)
 	{
 		a = -1; 
-		ft_printf("links[%d]\n", n);
+		ft_printf("links[%d][%d]\n", ptr->numblink, ptr->len);
 		while (++a < ptr->len)
 		{
 			ft_printf("%d", ptr->arlink[a]);
