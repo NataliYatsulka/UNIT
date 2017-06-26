@@ -29,7 +29,9 @@ int		check_not_links(char *line);
 /////////////
 void	ft_error(char *s)
 {
+	write(1, "\033[0;31mERROR: ", ft_strlen("\033[0;31mERROR: "));
 	write(1, s, ft_strlen(s));
+	write(1, "\033[;0m", ft_strlen("\033[;0m"));
 	exit(1);
 }
 
@@ -83,7 +85,7 @@ void	print_ants_way(t_output *otp)
 	i = 1;
 	while (i <= otp->ants)
 	{
-		ft_printf("L%d-%s", i, ptr->name);
+		ft_printf("\033[0;32mL%d\033[;0m-\033[0;33m%s\033[;0m", i, ptr->name);
 		(i == otp->ants) ? (ft_printf("\n")) : (ft_printf(" "));
 		i++;
 	}
@@ -111,7 +113,6 @@ void	print_one_way(t_output *otp, int nbr)
 {
 	int		i;
 	int		j;
-	t_room	*ptr;
 	t_link	*tmp;
 
 	tmp = otp->link;
@@ -129,7 +130,7 @@ void	print_one_way(t_output *otp, int nbr)
 		while (++j <= i)
 		{
 			if (j <= otp->ants && j > 0)
-				ft_printf("L%d-%s ", j, otp->mas[i - j + 1]);
+				ft_printf("\033[0;32mL%d\033[;0m-\033[0;33m%s\033[;0m ", j, otp->mas[i - j + 1]);
 		}
 		ft_printf("\n");
 	}
@@ -147,7 +148,11 @@ int		find_less_way(t_output *otp)
 	int		i;
 	t_link	*ptr;
 
-	ptr = otp->link;
+	ptr = NULL;
+	if (otp->link != NULL)
+		ptr = otp->link;
+	else
+		ft_error("more than one same name link\n");
 	i = ptr->len;
 	nr = 0;
 	while (ptr)
@@ -171,13 +176,13 @@ int		max_numb_way(t_output *otp)
 	count1 = 0;
 	count2 = 0;
 	i = -1;
-	while (otp->arr[otp->number_room_start][++i])
+	while (otp->arr[otp->number_room_start][++i] && i < otp->num_rooms)
 	{
 		if (otp->arr[otp->number_room_start][i] == 1)
 			count1++;
 	}
 	i = -1;
-	while (otp->arr[otp->number_room_end][++i])
+	while (otp->arr[otp->number_room_end][++i] && i < otp->num_rooms)
 	{
 		if (otp->arr[otp->number_room_end][i] == 1)
 			count2++;
@@ -189,15 +194,17 @@ void	find_best_way(t_output *otp)
 {
 	int		k;
 
-	if (max_numb_way(otp) == 0)
-		ft_error("ERROR  no way\n");
-	if (max_numb_way(otp) == 1)
+	k = max_numb_way(otp);
+	if (k == 0)
+		ft_error("no way\n");
+	else
+		if (k > 0)
 	{
 		print_one_way(otp, find_less_way(otp));
 	}
 	// else
 	// 	print_more_one_ways(otp);
-		ft_printf("num = %d; k = %d\n", max_numb_way(otp), find_less_way(otp));
+		// ft_printf("num = %d; k = %d\n", max_numb_way(otp), find_less_way(otp));
 }
 
 ////////////////////////////////////////////////////
@@ -309,11 +316,11 @@ void	matrix_for_links(t_output *otp)
 	}
 	j = -1;
 	if (!(otp->arr = (int **)malloc((k + 1) * sizeof(int *))))
-		ft_error("malloc for arrs");
+		ft_error("malloc for arrs\n");
 	otp->arr[k + 1] = NULL;
 	while (++j < k + 1)
 		if (!(otp->arr[j] = (int *)malloc((k + 1) * sizeof(int))))
-			ft_error("malloc for arrs11");
+			ft_error("malloc for arrs11\n");
 	j = -1;
 	while (++j < k + 1)
 	{
@@ -363,19 +370,19 @@ void	write_in_struct_links(t_output *otp, char *line)
 
 void	read_name_links(t_read *read, t_output *otp)//, char *line)
 {
-	int	k = 0;int i,j;//delete
+	// int	k = 0;int i,j;//delete
 	char	*line1;
 	// t_link	*link;
-	t_room	*ptr;//delete
-	t_room	*tmp;//delete
+	// t_room	*ptr;//delete
+	// t_room	*tmp;//delete
 
-	ptr = otp->room;//delete
-	while (ptr)
-	{
-		tmp = ptr;
-		ptr = ptr->next;
-	}
-	k = tmp->numb;
+	// ptr = otp->room;//delete
+	// while (ptr)
+	// {
+	// 	tmp = ptr;
+	// 	ptr = ptr->next;
+	// }
+	// k = tmp->numb;
 	//delete
 	// if (!(link = (t_link *)malloc(sizeof(t_link))))
 	// 	return ;
@@ -388,7 +395,7 @@ void	read_name_links(t_read *read, t_output *otp)//, char *line)
 		if (line1[0] == '#' && line1[1] == '#')
 		{
 			if (ft_strequ(line1, "##start") || ft_strequ(line1, "##end"))
-				ft_error("##start or ##end in block links");
+				ft_error("##start or ##end in block links\n");
 			else
 				write_read(&read, line1);
 		}
@@ -403,22 +410,22 @@ void	read_name_links(t_read *read, t_output *otp)//, char *line)
 		}
 		ft_strdel(&line1);
 	}
-	i = -1;//delete
-	while (++i < k + 1)
-	{
-		j = -1;
-		while (++j < k + 1)
-			printf("%d", otp->arr[i][j]);
-		printf("\n");
-	}
+	// i = -1;//delete
+	// while (++i < k + 1)
+	// {
+	// 	j = -1;
+	// 	while (++j < k + 1)
+	// 		printf("%d", otp->arr[i][j]);
+	// 	printf("\n");
+	// }
 }
 
 void	find_links(t_read **read, t_output *otp, char *line)
 {
 	if (line == NULL)
-		ft_error("empty line. no links");
+		ft_error("empty line\n");
 	if (otp->number_room_start < 0 || otp->number_room_end < 0)
-		ft_error("no end or start in block room");
+		ft_error("no end or start in block room\n");
 	if (line != NULL)
 	{
 		if (check_links(line))
@@ -429,7 +436,7 @@ void	find_links(t_read **read, t_output *otp, char *line)
 			read_name_links(*read, otp);//, line);§
 		}
 		else
-			ft_error("smth went wrong in func find_links");
+			ft_error("smth went wrong with read links, no valid links\n");
 	}
 }
 
@@ -650,11 +657,11 @@ void	put_good_room(t_output *otp, char *line)
 	if (line[j] == ' ' && line[j + 1])
 		j = valid_numb(line, j);
 	else
-		ft_error("no coord 1 ...\n");
+		ft_error("no first coord\n");
 	if (line[j] == ' ' && line[j + 1])
 		j = valid_numb(line, j);
 	else
-		ft_error("no coord 2 ...\n");
+		ft_error("no second coord\n");
 	if (line[j] != 0)
 		ft_error("smth after second coord in room block\n");
 }
@@ -695,12 +702,12 @@ void	find_rooms(t_read **read, t_output *otp)
 void	read_nub_ant(t_output *otp, char *line)
 {
 	int		i;
-	int		numb;
+	long long int		numb;
 
 	i = -1;
 	numb = 0;
 	if (!ft_isdigit(line[0]))
-		ft_error("some error\n");
+		ft_error("no ants\n");
 	while (line[++i])
 	{
 		if (line[i] && ft_isdigit(line[i]))
@@ -710,7 +717,7 @@ void	read_nub_ant(t_output *otp, char *line)
 				ft_error("num 2147483647 ..\n");
 		}
 		else
-			ft_error("bad input, something else in input after digits\n");
+			ft_error("bad input or something else in input after digits\n");
 	}
 	if (line[i])
 		ft_error("no numb ants, only links\n");
@@ -750,7 +757,7 @@ int		main(void)
 	// int			i;
 
 	read = NULL;
-	// ft_printf("%10hh.lld", 12345678);
+	// ft_printf("%10hh0.022lld", 12345678);
 	// if (!(out = (t_output *)malloc(sizeof(t_output))))
 	// 	return (-1);
 	out.room = NULL;
@@ -766,32 +773,33 @@ int		main(void)
 	out.num_rooms = tmp->numb + 1;
 	// out->tmp = ft_strnew(out->num_rooms);
 	if (!(out.tmp = (int *)ft_memalloc(sizeof(int) * (out.num_rooms + 1))))
-		ft_error("malloc5");
+		ft_error("malloc5\n");
 	if (out.arr[out.number_room_start][out.number_room_end] == 1)
 		print_ants_way(&out);
 	else
 	{
-		func_set(&out, out.number_room_start, 5);// not good coord j! not i
+		func_set(&out, out.number_room_start, 5);
 		algo_lemin(&out, out.number_room_start, 0);
+		func_set(&out, out.number_room_start, 1);
+		find_best_way(&out);
 	}
-	find_best_way(&out);
-	//delete
-	int a = -1;
-	int n = 0;
-	t_link *ptr;
-	ptr = out.link;
-	while (ptr)
-	{
-		a = -1; 
-		ft_printf("links[%d][%d]\n", ptr->numblink, ptr->len);
-		while (++a < ptr->len)
-		{
-			ft_printf("%d", ptr->arlink[a]);
-		}
-		ft_printf("\n");
-		ptr = ptr->next;n++;
-	}
-	// delete_struct(&read, &out);
-	// while (1);
+	// //delete
+	// int a = -1;
+	// int n = 0;
+	// t_link *ptr;
+	// ptr = out.link;
+	// while (ptr)
+	// {
+	// 	a = -1; 
+	// 	ft_printf("links[%d][%d]\n", ptr->numblink, ptr->len);
+	// 	while (++a < ptr->len)
+	// 	{
+	// 		ft_printf("%d", ptr->arlink[a]);
+	// 	}
+	// 	ft_printf("\n");
+	// 	ptr = ptr->next;n++;
+	// }
+	// // delete_struct(&read, &out);
+	// // while (1);
 	return (1);
 }
