@@ -25,6 +25,20 @@
 6-5
 3-8
 
+
+wrong : same name in block room
+3
+##start
+0 1 0
+##end
+OaK 5 0
+OK 9 0
+3 13 0
+0-OK
+OK-3
+3-OK
+
+
 12
 ##start
 0 1 4

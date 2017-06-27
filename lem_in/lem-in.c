@@ -85,7 +85,7 @@ void	print_ants_way(t_output *otp)
 	i = 1;
 	while (i <= otp->ants)
 	{
-		ft_printf("\033[0;32mL%d\033[;0m-\033[0;33m%s\033[;0m", i, ptr->name);
+		ft_printf("\033[0;36mL%d\033[;0m-\033[0;36m%s\033[;0m", i, ptr->name);
 		(i == otp->ants) ? (ft_printf("\n")) : (ft_printf(" "));
 		i++;
 	}
@@ -109,10 +109,8 @@ void	convert_num_to_rooms_name(t_output *otp, t_link *path)
 	otp->mas = s;
 }
 
-void	print_one_way(t_output *otp, int nbr)
+void	print_one_way(t_output *otp, int nbr, int i, int j)
 {
-	int		i;
-	int		j;
 	t_link	*tmp;
 
 	tmp = otp->link;
@@ -123,14 +121,14 @@ void	print_one_way(t_output *otp, int nbr)
 		tmp = tmp->next;
 	}
 	convert_num_to_rooms_name(otp, tmp);
-	i = 0;
 	while (++i <= (otp->ants + tmp->len - 1))
 	{
 		j = i - tmp->len + 1;
 		while (++j <= i)
 		{
 			if (j <= otp->ants && j > 0)
-				ft_printf("\033[0;32mL%d\033[;0m-\033[0;33m%s\033[;0m ", j, otp->mas[i - j + 1]);
+				ft_printf("\033[0;32mL%d\033[;0m-\033[0;33m%s\033[;0m ",
+					j, otp->mas[i - j + 1]);
 		}
 		ft_printf("\n");
 	}
@@ -197,14 +195,8 @@ void	find_best_way(t_output *otp)
 	k = max_numb_way(otp);
 	if (k == 0)
 		ft_error("no way\n");
-	else
-		if (k > 0)
-	{
-		print_one_way(otp, find_less_way(otp));
-	}
-	// else
-	// 	print_more_one_ways(otp);
-		// ft_printf("num = %d; k = %d\n", max_numb_way(otp), find_less_way(otp));
+	else if (k > 0)
+		print_one_way(otp, find_less_way(otp), 0, 0);
 }
 
 ////////////////////////////////////////////////////
@@ -282,6 +274,28 @@ void	algo_lemin(t_output *otp, int i, int count)
 **	block LINKS
 */
 /////////////////////////////////////////////////////
+
+void	find_same_name_room(t_output *otp)
+{
+	t_room	*ptr;
+	t_room	*tmp;
+
+	ptr = otp->room;
+	while (ptr)
+	{
+		tmp = ptr->next;
+		while (tmp)
+		{
+			if (ft_strcmp(tmp->name, ptr->name) == 0)
+				ft_error("same room name\n");
+			tmp = tmp->next;
+		}
+		if (ptr->next)
+			ptr = ptr->next;
+		else
+			break ;
+	}
+}
 
 int		check_links(char *line)
 {
@@ -422,6 +436,7 @@ void	read_name_links(t_read *read, t_output *otp)//, char *line)
 
 void	find_links(t_read **read, t_output *otp, char *line)
 {
+	find_same_name_room(otp);
 	if (line == NULL)
 		ft_error("empty line\n");
 	if (otp->number_room_start < 0 || otp->number_room_end < 0)
