@@ -1,42 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fdf.h                                              :+:      :+:    :+:   */
+/*   usage.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nyatsulk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/06/30 21:24:41 by nyatsulk          #+#    #+#             */
-/*   Updated: 2017/06/30 21:24:41 by nyatsulk         ###   ########.fr       */
+/*   Created: 2017/02/03 16:57:59 by nyatsulk          #+#    #+#             */
+/*   Updated: 2017/02/03 16:57:59 by nyatsulk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FDF_H
-# define FDF_H
-# include "libft/libft.h"
-# include "mlx.h"
-# include <math.h>
+#include "libft.h"
 
-typedef struct		s_readfdf
+void	usage(char *s)
 {
-	char			**arr;
-}					t_readfdf;
-
-typedef struct		s_cofdf
-{
-	int				x;
-	int				y;
-	int				z;
-}					t_cofdf;
-
-typedef struct		s_fdf
-{
-	char			*av;
-	char			**map;
-	char			*line;
-	int				num_map_row;
-	int				fd;
-}					t_fdf;
-
-int			main(int ac, char **av);
-
-#endif
+	write(1, "usage: ", 7);
+	ft_putstr(s);
+	write(1, " file\n", 6);
+	exit(0);
+}

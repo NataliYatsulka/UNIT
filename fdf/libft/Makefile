@@ -89,7 +89,8 @@ SRC = ft_memset.c \
 		ft_spec_s_s.c\
 		ft_spec_u_u.c\
 		ft_spec_x_x.c\
-		malloc_for_two_mas.c
+		malloc_for_two_mas.c\
+		usage.c
 
 
 OBJ = $(SRC:.c=.o)

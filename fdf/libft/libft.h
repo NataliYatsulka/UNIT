@@ -235,5 +235,6 @@ int					get_next_line(const int fd, char **line);
 */
 
 void				malloc_for_two_mas(char **s, int x, int y);
+void				usage(char *s);
 
 #endif
