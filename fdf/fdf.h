@@ -13,27 +13,30 @@
 #ifndef FDF_H
 # define FDF_H
 # include "libft/libft.h"
-# include "mlx.h"
+//# include "mlx.h"
 # include <math.h>
 
-typedef struct		s_readfdf
-{
-	char			**arr;
-}					t_readfdf;
+// typedef struct		s_readfdf
+// {
+// 	char			**arr;
+// }					t_readfdf;
 
-typedef struct		s_cofdf
+typedef struct		s_cfdf
 {
-	int				x;
-	int				y;
-	int				z;
-}					t_cofdf;
+	float				x;
+	float				y;
+	float				z;
+}					t_cfdf;
 
 typedef struct		s_fdf
 {
+	t_cfdf			**arr_coord;
+	t_cfdf			**arr_for_degree;
 	char			*av;
 	char			**map;
 	char			*line;
 	int				num_map_row;
+	int				num_map_col;
 	int				fd;
 }					t_fdf;
 
