@@ -14,7 +14,7 @@
 # define FDF_H
 # include "libft/libft.h"
 //# include "mlx.h"
-# include <math.h>
+// # include <math.h>
 
 // typedef struct		s_readfdf
 // {
