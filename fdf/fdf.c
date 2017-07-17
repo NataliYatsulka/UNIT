@@ -28,68 +28,71 @@ void	**ft_malloc_mas(int i)
 	return (tmp);
 }
 
-void	write_coord(t_fdf *f, char *s, int i)
+int		len_of_mas(char **p)
+{
+	int		count;
+
+	count = 0;
+	while (*p && *p != NULL)
+	{
+		p++;
+		count++;
+	}
+	return (count);
+}
+
+void	write_coord(t_fdf *f, char **s, int count, int i)
 {
 	int		j;
-	// int		count;
 
 	j = -1;
-	// count = 20;
-	if (f->num_map_col)
+	// printf("###################count=%d\n", count);
+	if (f->num_map_col && f->num_map_col <= count)// && f->num_map_col == count)
 	{
-		ft_printf("col=%d, row=%d\n", f->num_map_col, f->num_map_row);
+		// ft_printf("col=%d, row=%d\n", f->num_map_col, f->num_map_row);//delete
 		f->arr_coord[i] = (t_cfdf *)ft_memalloc(sizeof(t_cfdf) * f->num_map_col);
-		// while (*s)
-		// {
-		// 	*s++;
-		// 	count++;
-		// }
-		// if (!(f->num_map_col == count))
-		// 	ft_error("not the same numb of column in read file\n");
 		while (++j < f->num_map_col)
 		{
-// ft_printf("i = %d, j = %d\n", i, j);
 			(f->arr_coord[i][j]).x = (float)i;
 			(f->arr_coord[i][j]).y = (float)j;
-			(f->arr_coord[i][j]).z = (float)ft_atoi(&s[j]);
+			(f->arr_coord[i][j]).z = (float)ft_atoi(s[j]);
 		}
 	}
+	else
+		ft_error("bad line\n");
 }
 
 void	read_num_of_col(t_fdf *f)
 {
 	int		count;
 	int		i;
-	char	**p;
 
 	i = -1;
 	count = 0;
-	p = ft_strsplit(f->map[++i], ' ');
-	while (*p && *p != NULL)
-	{
-		p++;
-		count++;
-	}
+	count = len_of_mas(ft_strsplit(f->map[++i], ' '));
 	if (count > 0)
 		f->num_map_col = count;
 	else
 		ft_error("no column in map\n");
 	f->arr_coord = (t_cfdf **)ft_malloc_mas(f->num_map_row);
 	f->arr_for_degree = (t_cfdf **)ft_malloc_mas(f->num_map_row);
-	while (i < f->num_map_row)
-	{
-		write_coord(f, f->map[i], i);
-		i++;
-	}
+	i = -1;
+	while (++i < f->num_map_row)
+		write_coord(f, ft_strsplit(f->map[i], ' '),
+			len_of_mas(ft_strsplit(f->map[i], ' ')), i);
+
 
 	int k = -1;//delete
 	while (++k < f->num_map_row)
 	{
-
 		int j = -1;
 		while (++j < f->num_map_col)
-			printf("f->x= %f, f->y= %f, f->z= %f\n", (f->arr_coord[k][j]).x , (f->arr_coord[k][j]).y ,(f->arr_coord[k][j]).z);
-		ft_printf("\n");
+		{
+			// printf("f->x= %f, f->y= %f, f->z= %f\n", (f->arr_coord[k][j]).x , (f->arr_coord[k][j]).y ,(f->arr_coord[k][j]).z);
+			printf("%3.0f ", (f->arr_coord[k][j]).z);
+
+		}
+		printf("\n");
 	}
 	ft_printf("okkk'\n");
 }
@@ -142,6 +145,7 @@ int		main(int ac, char **av)
 	// 	ft_printf("%s\n", f->map[i]);
 	// }
 	// ft_printf("num_map_row = %d\n", f->num_map_row);
+	// ft_printf("okkk'\n");
 	// ft_printf("ok %d\n", 10);
 	return (0);
 }
