@@ -1,7 +1,7 @@
 
 #include "Phone_book.class.hpp"
 
-int		Phone_book::add_contact_to_list(void)
+static void	add_contact_to_list(Phone_book *phone)
 {
 	std::cout << "Please, enter your first_name" << std::endl;
 	std::getline(std::cin, phone->first_name);
@@ -25,7 +25,6 @@ int		Phone_book::add_contact_to_list(void)
 	std::getline(std::cin, phone->underwear_color);
 	std::cout << "Please, enter your darkest_secret" << std::endl;
 	std::getline(std::cin, phone->darkest_secret);
-	return (1);
 }
 
 int				main(void)
@@ -41,7 +40,7 @@ int				main(void)
 		if (line == "ADD")
 		{
 			if (i < 8)
-				phone[i].add_contact_to_list();
+				add_contact_to_list(&phone[i]);
 			else
 				std::cout << "Sorry, but too many contacts to add!" << std::endl;
 			// std::cout << "OKKKKKK" << std::endl;

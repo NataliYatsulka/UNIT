@@ -22,7 +22,8 @@ class Phone_book
 		Phone_book(void);
 		~Phone_book(void);
 
-		int		add_contact_to_list(void);
+		static void		add_contact_to_list(void);
+		static int		_nbContacts;
 };
 
 #endif
