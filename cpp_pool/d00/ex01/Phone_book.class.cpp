@@ -4,6 +4,7 @@
 
 
 Phone_book::Phone_book(void){
+	this->Phone_book::_nbContacts = 8;
 	// Phone_book::_nbContacts++;
 	// if (Phone_book::_nbContacts == 8)
 	// 	std::cout << "Phone_book is full" << std::endl;
@@ -17,4 +18,4 @@ Phone_book::~Phone_book(void){
 	return ;
 }
 
-int		Phone_book::_nbContacts = 0;
+// int		Phone_book::_nbContacts = 8;

@@ -4,51 +4,6 @@
 #include "Phone_book.class.hpp"
 
 
-static void	add_to_list(Phone_book *phone, int i, std::string s)
-{
-	std::string line;
-	std::cout << s << std::endl;
-	if (std::cin.eof())
-		exit(1);
-	std::getline(std::cin, line, '\n');
-	// std::cout << std::endl;
-	while (line.empty())
-	{
-		std::cout << "Enter " << s << " about new contact:" << std::endl;
-		if (std::cin.eof())
-			exit(1);
-		std::getline(std::cin, line, '\n');
-	}
-	switch (i)
-	{
-		case 0: phone->first_name = line;
-		case 1: phone->last_name = line;
-		case 2: phone->nickname = line;
-		case 3: phone->login = line;
-		case 4: phone->postal_address = line;
-		case 5: phone->email_address = line;
-		case 6: phone->phone_number = line;
-		case 7: phone->birthday_date = line;
-		case 8: phone->favorite_meal = line;
-		case 9: phone->underwear_color = line;
-		case 10: phone->darkest_secret = line;
-	}
-}
-
-static void	add_contact(Phone_book *phone)
-{
-	add_to_list(phone, 0, "first_name");
-	add_to_list(phone, 1, "last_name");
-	add_to_list(phone, 2, "nickname");
-	add_to_list(phone, 3, "login");
-	add_to_list(phone, 4, "postal_address");
-	add_to_list(phone, 5, "email_address");
-	add_to_list(phone, 6, "phone_number");
-	add_to_list(phone, 7, "birthday_date");
-	add_to_list(phone, 8, "favorite_meal");
-	add_to_list(phone, 9, "underwear_color");
-	add_to_list(phone, 10, "darkest_secret");
-}
 
 int				main(void)
 {
@@ -58,14 +13,12 @@ int				main(void)
 	std::string	line;
 
 	std::cout << "Enter some of this operation: ADD, SEARCH or EXIT:" << std::endl;
-	if (std::cin.eof())
-		exit(1);
 	while (std::getline(std::cin, line, '\n'))
 	{		
 		if (line == "ADD")
 		{
 			if (i < 8)
-				add_contact(&phone[i]);
+				phone[i].add_contact();
 			else
 				std::cout << "Sorry, but too many contacts to add!" << std::endl;
 			i++;
