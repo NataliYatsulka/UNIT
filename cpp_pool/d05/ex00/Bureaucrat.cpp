@@ -28,12 +28,16 @@ Bureaucrat &Bureaucrat::operator=(Bureaucrat const &)
 
 void	Bureaucrat::incremGrade()
 {
-	this->_grade++;
+	if (this->_grade <=1)
+		throw (Bureaucrat::GradeTooHighException());
+	this->_grade--;
 }
 
 void	Bureaucrat::decremGrade()
 {
-	this->_grade--;
+	if (this->_grade >= 150)
+		throw (Bureaucrat::GradeTooLowException());
+	this->_grade++;
 }
 
 
@@ -60,7 +64,7 @@ Bureaucrat::GradeTooHighException::~GradeTooHighException() throw()
 
 Bureaucrat::GradeTooHighException::GradeTooHighException(GradeTooHighException const &src)
 {	
-	*this->src;
+	*this = src;
 }
 
 Bureaucrat::GradeTooHighException	&Bureaucrat::GradeTooHighException::operator
@@ -88,7 +92,7 @@ Bureaucrat::GradeTooLowException::~GradeTooLowException() throw()
 
 Bureaucrat::GradeTooLowException::GradeTooLowException(GradeTooLowException const &src)
 {
-	*this->src;
+	*this = src;
 }
 
 Bureaucrat::GradeTooLowException	&Bureaucrat::GradeTooLowException::operator
