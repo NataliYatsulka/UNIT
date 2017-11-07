@@ -1,7 +1,6 @@
 
 #include "Bureaucrat.hpp"
 
-
 const int Bureaucrat::minGrade = 1;
 const int Bureaucrat::maxGrade = 150;
 
@@ -45,6 +44,40 @@ void	Bureaucrat::decremGrade()
 	this->_grade++;
 }
 
+void	Bureaucrat::signForm(Form &f)
+{
+	try
+	{
+		f.beSigned(*this);
+		std::cout << this->_name << " signed " << f.getName() << std::endl;
+	}
+	catch (Form::GradeTooLowException &e)
+	{
+		std::cout << this->_name << " cannot sign " << f.getName() << " because " <<e.what() << std::endl;
+	}
+	return ;
+}
+
+void	Bureaucrat::executeForm(Form const &f)
+{
+	try
+	{
+		std::cout << this->_name << " executes " << f.getName() << " on " <<
+			f.getTarget() << std::endl;
+		f.tryExecute(*this);		
+	}
+	catch (Form::GradeTooLowException &e)
+	{
+		std::cout << this->_name << " cannot execute " << f.getName() <<
+			" because " << e.what() << std::endl;
+	}
+	catch (Form::FormNotSignedException &e)
+	{
+		std::cout << this->_name << " cannot execute " << f.getName() <<
+			" because " << e.what() << std::endl;
+	}
+	return ;
+}
 
 std::string	const	&Bureaucrat::getName() const
 {

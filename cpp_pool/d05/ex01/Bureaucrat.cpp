@@ -45,6 +45,20 @@ void	Bureaucrat::decremGrade()
 	this->_grade++;
 }
 
+void	Bureaucrat::signForm(Form &f)
+{
+	try
+	{
+		f.beSigned(*this);
+		std::cout << this->_name << " signed " << f.getName() << std::endl;
+	}
+	catch (Form::GradeTooLowException &e)
+	{
+		std::cout << this->_name << " cannot sign " << f.getName() << " because " <<e.what() << std::endl;
+	}
+	return ;
+}
+
 
 std::string	const	&Bureaucrat::getName() const
 {
